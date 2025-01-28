@@ -4,9 +4,10 @@ package entity
 // @Description A representation of a user.
 // @ID User
 type User struct {
-	ID    int    `json:"id" example:"1"`
-	Name  string `json:"name" example:"John Doe"`
-	Email string `json:"email" example:"john.doe@example.com"`
+	ID       int    `json:"id" example:"1"`
+	Name     string `json:"name" example:"John Doe"`
+	Username string `json:"username" example:"JohnDoe"`
+	Email    string `json:"email" example:"john.doe@example.com"`
 }
 
 type CustomerStatus Enum

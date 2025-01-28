@@ -5,14 +5,17 @@ import "github.com/gofiber/fiber/v2"
 type ErrorCode int
 type FieldInvalidCode int
 
+// Request Error
 const (
-	NotFound      ErrorCode = 1   // Error Data Notfound
-	BadRequest    ErrorCode = 2   // Error Conflict
-	Invalidate    ErrorCode = 3   // Error Basic Validate
-	Integration   ErrorCode = 4   // Error When Integrate External Service
+	NotFound      ErrorCode = 100 // Error Data Notfound
+	BadRequest    ErrorCode = 101 // Error Invalid Model, null
+	Invalidate    ErrorCode = 102 // Error Invalidate
+	Conflict      ErrorCode = 103 // Error Conflict
+	Integration   ErrorCode = 104 // Error When Integrate External Service
 	UnHandleError ErrorCode = 500 // Internal Server Error, UnHandle Error
 )
 
+// Field Error
 const (
 	ValueCannotBeNull  FieldInvalidCode = 1000 // Error Required
 	ValueIsRequired    FieldInvalidCode = 1001 // Error Required
@@ -25,14 +28,16 @@ func (e ErrorCode) GetHttpCode() int {
 	case NotFound:
 		return fiber.StatusNotFound
 	case BadRequest:
+		return fiber.StatusBadRequest
 	case Invalidate:
 		return fiber.StatusBadRequest
 	case Integration:
+		return fiber.StatusInternalServerError
 	case UnHandleError:
+		return fiber.StatusInternalServerError
 	default:
 		return fiber.StatusInternalServerError
 	}
-	return fiber.StatusInternalServerError
 }
 
 func (e ErrorCode) GetDefaultErrorMsg() string {

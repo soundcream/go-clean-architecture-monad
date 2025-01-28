@@ -15,15 +15,6 @@ func NewUserController(facade facades.UserFacade) *UserController {
 	return &UserController{Facade: facade}
 }
 
-func MapRoute(route fiber.Router, controller UserController) {
-	route.Get("/users", func(c *fiber.Ctx) error {
-		return controller.GetUsers(c)
-	})
-	route.Get("/validate", func(c *fiber.Ctx) error {
-		return controller.TestValidate(c)
-	})
-}
-
 // GetUsers godoc
 // @Summary Get a list of users
 // @Description Retrieve all users from the system
@@ -53,4 +44,6 @@ func (u *UserController) TestValidate(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusInternalServerError).JSON(result)
 }
 
-//
+func (u *UserController) MapRequestContext(fun func(ctx *fiber.Ctx) error) {
+
+}

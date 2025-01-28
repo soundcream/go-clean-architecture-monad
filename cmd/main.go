@@ -44,10 +44,9 @@ func main() {
 	///// ### Validate Section ### /////
 
 	// Swagger Route
-	app.Get("/swagger/*", swagger.HandlerDefault) // Serve Swagger UI
-
-	app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
-		URL:          "/swagger/doc.json",
+	swaggerConf := swagger.Config{
+		Title:        "",
+		URL:          "/docs/swagger.json",
 		DeepLinking:  false,
 		DocExpansion: "none",
 		OAuth: &swagger.OAuthConfig{
@@ -56,7 +55,11 @@ func main() {
 		},
 		// Ability to change OAuth2 redirect uri location
 		OAuth2RedirectUrl: "http://localhost:8080/swagger/oauth2-redirect.html",
-	}))
+	}
+
+	//app.Get("/swagger/*", swagger.HandlerDefault) // Serve Swagger UI
+
+	app.Get("/swagger/*", swagger.New(swaggerConf))
 
 	app.Get("/validate", func(c *fiber.Ctx) error {
 		user := &User{

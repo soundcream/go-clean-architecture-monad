@@ -83,14 +83,31 @@ func (f *userFacade) TestThen() *entity.Txn {
 
 func (f *userFacade) RemoveUserById_Before(id int) (*entity.User, base.ErrContext) {
 	r1 := doSome1(id)
-	if r1.IsLeft() {
-
+	if r1.IsRight() {
+		r2 := doSome4(*r1.Right)
+		if r2.IsRight() {
+			r3 := doSome5(*r2.Right)
+			if r3.IsRight() {
+				r4 := doSome3(*r3.Right)
+				if r4.IsRight() {
+					r5 := doSome2(*r4.Right)
+					if r5.IsRight() {
+						return r5.Right, base.NewError(base.UnHandleError, *r5.Left)
+					} else {
+						return nil, base.NewError(base.UnHandleError, *r4.Left)
+					}
+				} else {
+					return nil, base.NewBadError()
+				}
+			} else {
+				return nil, base.NewBadError()
+			}
+		} else {
+			return nil, base.NewBadError()
+		}
 	}
-	r2 := doSome4(*r1.Right)
-	r3 := doSome5(*r2.Right)
-	r4 := doSome3(*r3.Right)
-	r5 := doSome2(*r4.Right)
-	return r5.Right, base.NewError(base.UnHandleError, *r5.Left)
+
+	return nil, base.NewBadError()
 }
 
 func (f *userFacade) RemoveUserById_After(id int) base.Either[entity.User, base.ErrContext] {
@@ -101,7 +118,9 @@ func (f *userFacade) RemoveUserById_After(id int) base.Either[entity.User, base.
 }
 
 func (f *userFacade) RemoveUserById_After2(id int) base.Either[entity.User, base.ErrContext] {
-	r1 := doSome1(id).Then(doSome4).Then(doSome5)
+	r1 := doSome1(id).
+		Then(doSome4).
+		Then(doSome5)
 	r2 := either.Bind(r1, doSome3)
 	r3 := either.Bind(r2, doSome2)
 	return r3.BindErrContext(handleUserError)
@@ -139,24 +158,24 @@ func (f *userFacade) TestValidate2(u *entity.User) *base.ErrContext {
 }
 
 func validateUserStep1(u *entity.User) base.Either[entity.User, base.ErrContext] {
-	if u.ID <= 0 {
-		return base.NewEither[entity.User, base.ErrContext](u, base.NewInvalidateError("ID", base.ValueNotInScope))
+	if u.ID >= 0 {
+		return base.NewEither(u, base.NewInvalidateError("ID", base.ValueNotInScope))
 	}
 	return base.RightEither[entity.User, base.ErrContext](*u)
 }
 
 func validateUserStep2(u *entity.User, err *base.ErrContext) base.Either[entity.User, base.ErrContext] {
 	if u.Name != "" {
-		return base.NewEither[entity.User, base.ErrContext](u, base.NewInvalidateError("Name", base.ValueIsRequired).AppendExt(err))
+		return base.NewEither(u, base.NewInvalidateError("Name", base.ValueIsRequired).AppendExt(err))
 	}
-	return base.NewEither[entity.User, base.ErrContext](u, err)
+	return base.NewEither(u, err)
 }
 
 func (f *userFacade) validateUserStep3(u *entity.User, err *base.ErrContext) base.Either[entity.User, base.ErrContext] {
 	if u.Email == "" {
-		return base.NewEither[entity.User, base.ErrContext](u, base.NewInvalidateError("Email", base.ValueInvalidFormat).AppendExt(err))
+		return base.NewEither(u, base.NewInvalidateError("Email", base.ValueInvalidFormat).AppendExt(err))
 	}
-	return base.NewEither[entity.User, base.ErrContext](u, err)
+	return base.NewEither(u, err)
 }
 
 func vStep1(u *entity.User) base.Either[entity.User, base.ErrContext] {
