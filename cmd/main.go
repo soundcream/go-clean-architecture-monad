@@ -2,8 +2,11 @@ package main
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/contrib/fiberi18n/v2"
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/gofiber/fiber/v2/utils"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 	"log"
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
@@ -22,13 +25,30 @@ func main() {
 		Validator: validator.New(),
 	}
 
-	//app.Use(
-	//	fiberi18n.New(&fiberi18n.Config{
-	//		RootPath:        "./example/localize",
-	//		AcceptLanguages: []language.Tag{language.Chinese, language.English},
-	//		DefaultLanguage: language.Chinese,
-	//	}),
-	//)
+	app.Use(
+		fiberi18n.New(&fiberi18n.Config{
+			RootPath:         "./i18n",
+			AcceptLanguages:  []language.Tag{language.Thai, language.English},
+			DefaultLanguage:  language.Thai,
+			FormatBundleFile: "yaml",
+		}),
+	)
+
+	app.Get("/hello", func(c *fiber.Ctx) error {
+		localize, err := fiberi18n.Localize(c, "welcome")
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		return c.SendString(localize)
+	})
+	app.Get("/hello/:name", func(ctx *fiber.Ctx) error {
+		return ctx.SendString(fiberi18n.MustLocalize(ctx, &i18n.LocalizeConfig{
+			MessageID: "welcomeWithName",
+			TemplateData: map[string]string{
+				"name": ctx.Params("name"),
+			},
+		}))
+	})
 
 	// Validator
 	err := validators.RegisterIsTeenValidator(myValidator.Validator)
