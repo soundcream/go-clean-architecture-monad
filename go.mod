@@ -16,6 +16,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.24.0 // indirect
+	github.com/gofiber/contrib/fiberi18n/v2 v2.0.5 // indirect
 	github.com/gofiber/fiber/v2 v2.52.6 // indirect
 	github.com/gofiber/swagger v1.1.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -26,6 +27,7 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/nicksnyder/go-i18n/v2 v2.5.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect

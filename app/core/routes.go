@@ -25,10 +25,11 @@ func MapRoute(app *fiber.App) {
 
 	api := app.Group("/api", middleware)
 
-	MapUserController(api.Group("/user"), getUserController())
-	MapDemoController(api.Group("/demo"), *controllers.NewDemoController())
+	// Stateless Controller
+	MapStateLessUserController(api.Group("/user"))
 
-	//NewDemoFacade
+	// Stateful Controller
+	controllers.NewDemoController().MapRoute(api.Group("/demo"))
 }
 
 // TOD use DI
@@ -39,18 +40,14 @@ func getUserController() controllers.UserController {
 	return *uc
 }
 
-func MapUserController(route fiber.Router, controller controllers.UserController) {
+func MapStateLessUserController(route fiber.Router) {
 	route.Get("/users", func(c *fiber.Ctx) error {
-		return controller.GetUsers(c)
+		con := getUserController()
+		return con.GetUsers(c)
 	})
 	route.Get("/validate", func(c *fiber.Ctx) error {
-		return controller.TestValidate(c)
-	})
-}
-
-func MapDemoController(route fiber.Router, controller controllers.DemoController) {
-	route.Get("/demo", func(c *fiber.Ctx) error {
-		return controller.TestValidate(c)
+		con := getUserController()
+		return con.TestValidate(c)
 	})
 }
 

@@ -15,15 +15,16 @@ func NewUserController(facade facades.UserFacade) *UserController {
 	return &UserController{Facade: facade}
 }
 
-// GetUsers godoc
-// @Summary Get a list of users
+// GetUsers @Summary Get a list of users
 // @Description Retrieve all users from the system
 // @Tags users
-// @Produce json
+// @Accept  json
+// @Produce  json
 // @Success 200 {array} entity.User
 // @Router /api/user/users [get]
 func (u *UserController) GetUsers(c *fiber.Ctx) error {
 	u.Facade.TestThen()
+	c.Query("take", "10")
 	users, err := u.Facade.ListUsers()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})

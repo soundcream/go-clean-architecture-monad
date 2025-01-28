@@ -1,6 +1,10 @@
 package base
 
-import "n4a3/clean-architecture/app/base/util"
+import (
+	"n4a3/clean-architecture/app/base/collection"
+	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/base/util"
+)
 
 type ErrContext struct {
 	Code       ErrorCode
@@ -81,6 +85,21 @@ func NewErrorWithMsg(errorCode ErrorCode, msg string, err error) ErrContext {
 		Msg:      msg,
 		Cause:    getCause(err),
 		error:    err}
+}
+
+func NewErrContextFromInvalidateField(invalidates []global.InvalidateField) *ErrContext {
+	if len(invalidates) == 0 {
+		return nil
+	}
+	err := collection.NewMapping[global.InvalidateField, ErrExt](invalidates).Map(func(field global.InvalidateField) ErrExt {
+		return ErrExt{
+			Code:  int(ValueInvalidate),
+			Field: field.FailedField,
+			Msg:   ValueInvalidate.GetErrorMsg(),
+		}
+	})
+	result := NewInvalidateExtError(err)
+	return &result
 }
 
 func getCause(err error) *string {

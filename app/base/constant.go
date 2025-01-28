@@ -4,6 +4,7 @@ import "github.com/gofiber/fiber/v2"
 
 type ErrorCode int
 type FieldInvalidCode int
+type ValidateType string
 
 // Request Error
 const (
@@ -17,10 +18,16 @@ const (
 
 // Field Error
 const (
-	ValueCannotBeNull  FieldInvalidCode = 1000 // Error Required
-	ValueIsRequired    FieldInvalidCode = 1001 // Error Required
-	ValueNotInScope    FieldInvalidCode = 1002 // Error Required
-	ValueInvalidFormat FieldInvalidCode = 1003 // Error Required
+	ValueInvalidate    FieldInvalidCode = 1000 // Error Required
+	ValueCannotBeNull  FieldInvalidCode = 1001 // Error Required
+	ValueIsRequired    FieldInvalidCode = 1002 // Error Required
+	ValueNotInScope    FieldInvalidCode = 1003 // Error Required
+	ValueInvalidFormat FieldInvalidCode = 1004 // Error Required
+)
+
+const (
+	ValidateTeen          ValidateType = "teen-person"
+	ValidateEmailUsername ValidateType = "username-email"
 )
 
 func (e ErrorCode) GetHttpCode() int {
@@ -59,6 +66,8 @@ func (e ErrorCode) GetDefaultErrorMsg() string {
 
 func (f FieldInvalidCode) GetErrorMsg() string {
 	switch f {
+	case ValueInvalidate:
+		return "Value is invalid"
 	case ValueIsRequired:
 		return "Value is required"
 	case ValueNotInScope:
@@ -69,5 +78,16 @@ func (f FieldInvalidCode) GetErrorMsg() string {
 		return "Value cannot be null"
 	default:
 		return "Value is required"
+	}
+}
+
+func (v ValidateType) getMessage() string {
+	switch v {
+	case ValidateTeen:
+		return ""
+	case ValidateEmailUsername:
+		return ""
+	default:
+		return "-"
 	}
 }

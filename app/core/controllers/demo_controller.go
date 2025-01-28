@@ -16,6 +16,19 @@ func NewDemoController() *DemoController {
 	}
 }
 
+func (con *DemoController) MapRoute(route fiber.Router) {
+	route.Get("/ex", func(c *fiber.Ctx) error {
+		return con.TestValidate(c)
+	})
+}
+
+// TestValidate @Summary Example of chain Validate
+// @Description
+// @Tags Demo
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} entity.User
+// @Router /demo/ex [get]
 func (con *DemoController) TestValidate(c *fiber.Ctx) error {
 	e := con.Facade.Validate(new(entity.User))
 	if e.IsLeft() {
