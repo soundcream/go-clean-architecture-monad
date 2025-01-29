@@ -17,6 +17,7 @@ const (
 	Invalidate    ErrorCode = 102 // Error Invalidate
 	Conflict      ErrorCode = 103 // Error Conflict
 	Integration   ErrorCode = 104 // Error When Integrate External Service
+	Unauthorized  ErrorCode = 401
 	UnHandleError ErrorCode = 500 // Internal Server Error, UnHandle Error
 )
 
@@ -45,6 +46,8 @@ func (e ErrorCode) GetHttpCode() int {
 		return fiber.StatusBadRequest
 	case Integration:
 		return fiber.StatusInternalServerError
+	case Unauthorized:
+		return fiber.StatusUnauthorized
 	case UnHandleError:
 		return fiber.StatusInternalServerError
 	default:
@@ -62,6 +65,8 @@ func (e ErrorCode) GetDefaultErrorMsg() string {
 		return "Invalid request"
 	case Integration:
 		return "Something went wrong"
+	case Unauthorized:
+		return "Unauthorized"
 	case UnHandleError:
 		return "Something went wrong"
 	default:

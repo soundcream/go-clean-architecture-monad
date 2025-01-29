@@ -5,17 +5,22 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/contrib/fiberi18n/v2"
+	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
-	"log"
+
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
 	"n4a3/clean-architecture/app/validators"
 	"os"
+	"time"
 )
 
 type Application struct {
@@ -81,16 +86,14 @@ func (a *Application) SetupI18n() {
 }
 
 func (a *Application) SetupAppConfig() {
-	//if err != nil {
-	//	panic(fmt.Errorf("fatal error config file: %w", err))
-	//}
 	env := os.Getenv(base.Environment)
-	viper.SetConfigName(fmt.Sprintf("config.%s", env))
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("./conf")
+	//viper.SetConfigName(fmt.Sprintf("config.%s", env))
+	//viper.SetConfigType("yaml")
+	//viper.AddConfigPath("./conf")
+	viper.SetConfigFile(fmt.Sprintf("./conf/config.%s.yaml", env))
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		panic(fmt.Errorf("fatal error read config file: %w", err))
 	}
 
 	// # WatchConfig
@@ -140,7 +143,79 @@ func (a *Application) Bootstrapper() {
 	a.SetupI18n()
 	a.SetupValidator()
 	a.SetupSwagger()
+	a.SetupAuthorization()
 	a.MapRoute()
+}
+
+func (a *Application) SetupAuthorization() {
+	useFavicon(a)
+
+	// GET TOKEN
+	a.app.Get("/api/signin", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"token": CreateToken()})
+	})
+
+	// Manual Authorize Handler
+	//a.app.Use(jwtware.New(jwtware.Config{
+	//	Filter:       SecurityFilter,
+	//	ErrorHandler: UnauthorizedHandler,
+	//	SigningKey:   jwtware.SigningKey{Key: []byte("secret")},
+	//}))
+
+	// Basic Authorize Handler
+	a.app.Use(jwtware.New(jwtware.Config{
+		SigningKey: jwtware.SigningKey{Key: []byte("secret")},
+	}))
+
+	// Restricted Routes
+	a.app.Get("/restricted", restricted)
+}
+
+func CreateToken() string {
+	claims := jwt.MapClaims{
+		"name":  "Arm Natthee",
+		"admin": true,
+		"exp":   time.Now().Add(time.Hour * 24).Unix(),
+	}
+
+	// Create token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Generate encoded token and send it as response.
+	t, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		log.Info("Error on get token %s", err)
+	}
+	return t
+}
+
+func restricted(c *fiber.Ctx) error {
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	name := claims["name"].(string)
+	return c.SendString("Welcome " + name)
+}
+
+func SecurityFilter(ctx *fiber.Ctx) bool {
+	name := ctx.OriginalURL()
+	path := ctx.Path()
+	fmt.Println(name)
+	fmt.Println(path)
+	return path == "/favicon.ico"
+}
+
+func UnauthorizedHandler(ctx *fiber.Ctx, err error) error {
+	return ctx.Status(fiber.StatusUnauthorized).JSON(ErrorContextResponse(base.NewErrorWithCode(base.Unauthorized)))
+}
+
+func useFavicon(a *Application) {
+	a.app.Use(favicon.New())
+
+	// config for customization
+	//a.app.Use(favicon.New(favicon.Config{
+	//	File: "./favicon.ico",
+	//	URL:  "/favicon.ico",
+	//}))
 }
 
 func (a *Application) Start() {
@@ -160,17 +235,15 @@ func (a *Application) Start() {
 
 func NewApp() Application {
 	app := fiber.New(fiber.Config{
-		// Global custom error handler
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
-			log.Printf("%+v", err)
-			return c.Status(fiber.StatusBadRequest).JSON(global.ErrorHandlerResp{
-				Success: false,
-				Message: err.Error(),
-			})
+			log.Errorf("%+v", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse(global.ErrorHandlerResp{
+				Code:    int(base.UnHandleError),
+				Message: base.UnHandleError.GetDefaultErrorMsg(),
+			}))
 		},
 	})
-	a := Application{
+	return Application{
 		app: app,
 	}
-	return a
 }

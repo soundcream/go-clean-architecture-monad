@@ -88,16 +88,16 @@ func (f *userFacade) RemoveUserById_Before(id int) (*entity.User, base.ErrContex
 						return nil, base.NewError(base.UnHandleError, *r4.Left)
 					}
 				} else {
-					return nil, base.NewBadError()
+					return nil, base.NewErrorWithCode(base.BadRequest)
 				}
 			} else {
-				return nil, base.NewBadError()
+				return nil, base.NewErrorWithCode(base.BadRequest)
 			}
 		} else {
-			return nil, base.NewBadError()
+			return nil, base.NewErrorWithCode(base.BadRequest)
 		}
 	}
-	return nil, base.NewBadError()
+	return nil, base.NewErrorWithCode(base.BadRequest)
 }
 
 func (f *userFacade) RemoveUserById_After(id int) base.Either[entity.User, base.ErrContext] {

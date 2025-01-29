@@ -1,16 +1,43 @@
 package core
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"errors"
+	"github.com/gofiber/fiber/v2"
+	"n4a3/clean-architecture/app/base"
+)
 
-type Controller interface {
-	MapRoute(route fiber.Router)
+func OkResult(c *fiber.Ctx, data interface{}) error {
+	return c.Status(fiber.StatusOK).JSON(SuccessResponse(data))
 }
 
-//func MapController[T any](route fiber.Router, controller UserController) {
-//	route.Get("/users", func(c *fiber.Ctx) error {
-//		return controller.GetUsers(c)
-//	})
-//	route.Get("/validate", func(c *fiber.Ctx) error {
-//		return controller.TestValidate(c)
-//	})
-//}
+func ErrorResult(c *fiber.Ctx, error *base.ErrContext) error {
+	if error == nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorUnHandlerResponse())
+	}
+	return c.Status(error.HttpCode).JSON(ErrorContextResponse(*error))
+}
+
+func Bad(c *fiber.Ctx) {
+
+}
+
+func Notfound(c *fiber.Ctx) {
+
+}
+
+func OkWithI18n(c *fiber.Ctx) {
+
+}
+
+func BadWithI18n(c *fiber.Ctx) {
+
+}
+
+func NotfoundWithI18n(c *fiber.Ctx) {
+
+}
+
+func getError() error {
+	var er = errors.New("data not found")
+	return er
+}

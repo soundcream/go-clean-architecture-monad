@@ -31,11 +31,10 @@ func (con *DemoController) MapRoute(route fiber.Router) {
 // @Router /api/demo/ex [get]
 func (con *DemoController) TestValidate(c *fiber.Ctx) error {
 	result := con.Facade.Validate(new(entity.User))
-	//panic("55 erorr")
-
 	if result.IsRight() {
-		return c.Status(fiber.StatusOK).JSON(result.Right)
+		//return core.OkResult(c, result.Right)
+		return c.Status(fiber.StatusOK).JSON(result)
 	}
-	return c.Status(fiber.StatusInternalServerError).JSON(result.Left)
-
+	//return core.ErrorResult(c, result.Left)
+	return c.Status(fiber.StatusInternalServerError).JSON(result)
 }

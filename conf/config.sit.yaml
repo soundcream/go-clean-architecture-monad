@@ -2,7 +2,6 @@ app :
   appName: "My Clean Architecture (system integration)"
   domain: "Core"
   httpPort: 8080
-
 dbConfig:
   host: 127.0.0.1
   port: 5432

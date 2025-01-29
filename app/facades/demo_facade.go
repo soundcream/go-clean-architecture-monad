@@ -26,7 +26,7 @@ func (f *demoFacade) Validate(u *entity.User) base.Either[entity.User, base.ErrC
 
 func checkNull[T any](model *T) base.Either[T, base.ErrContext] {
 	if model == nil {
-		return base.LeftEither[T, base.ErrContext](base.NewBadError())
+		return base.LeftEither[T, base.ErrContext](base.NewErrorWithCode(base.BadRequest))
 	}
 	return base.RightEither[T, base.ErrContext](*model)
 }

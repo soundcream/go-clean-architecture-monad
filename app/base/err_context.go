@@ -31,8 +31,7 @@ func (e *ErrContext) AppendExt(err *ErrContext) *ErrContext {
 	return e
 }
 
-func NewBadError() ErrContext {
-	errorCode := BadRequest
+func NewErrorWithCode(errorCode ErrorCode) ErrContext {
 	return ErrContext{
 		Code:     errorCode,
 		HttpCode: errorCode.GetHttpCode(),

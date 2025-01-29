@@ -12,6 +12,7 @@ type (
 	Config struct {
 		App      AppConfig
 		DbConfig DbConfig
+		Public   []string
 	}
 	AppConfig struct {
 		AppName  string
@@ -40,8 +41,9 @@ type (
 		Validator *validator.Validate
 	}
 	ErrorHandlerResp struct {
-		Success bool   `json:"success"`
-		Message string `json:"message"`
+		Code    int         `json:"code"`
+		Message string      `json:"message"`
+		Ext     interface{} `json:"ext"`
 	}
 	KeyValue[T, S any] struct {
 		Key T

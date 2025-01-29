@@ -9,6 +9,7 @@ import (
 // UserController is responsible for handling user-related routes.
 type UserController struct {
 	Facade facades.UserFacade
+	Ctx    *fiber.Ctx
 }
 
 func NewUserController(facade facades.UserFacade) *UserController {
