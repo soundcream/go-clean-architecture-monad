@@ -7,13 +7,13 @@ import (
 	"n4a3/clean-architecture/app/interfaces/repository"
 )
 
-func MapRoute(app *fiber.App) {
+func (a *Application) MapRoute() {
 	// default Routes
-	app.Get("/ping", func(c *fiber.Ctx) error {
+	a.app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"message": "pong"})
 	})
 
-	app.Get("/master", func(c *fiber.Ctx) error {
+	a.app.Get("/master", func(c *fiber.Ctx) error {
 		var data = []string{"a", "b"}
 		return c.JSON(fiber.Map{
 			"status":  "0",
@@ -23,7 +23,7 @@ func MapRoute(app *fiber.App) {
 		})
 	})
 
-	api := app.Group("/api", middleware)
+	api := a.app.Group("/api", middleware)
 
 	// Stateless Controller
 	MapStateLessUserController(api.Group("/user"))

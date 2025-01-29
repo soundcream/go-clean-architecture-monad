@@ -9,11 +9,26 @@ func NewKeyValue[T, S any](key T, value S) KeyValue[T, S] {
 }
 
 type (
+	Config struct {
+		App      AppConfig
+		DbConfig DbConfig
+	}
+	AppConfig struct {
+		AppName  string
+		Domain   string
+		HttpPort int
+	}
+	DbConfig struct {
+		Host     string
+		Port     int
+		DbName   string
+		Username string
+		Password string
+	}
 	User struct {
 		Name string `validate:"required,min=5,max=20"` // Required field, min 5 char long max 20
 		Age  int    `validate:"required,teen-person"`  // Required field, and client needs to implement our 'teen-person' tag format which we'll see later
 	}
-
 	InvalidateField struct {
 		Error       bool
 		FailedField string
@@ -21,19 +36,13 @@ type (
 		Msg         string
 		Value       interface{}
 	}
-
 	XValidator struct {
 		Validator *validator.Validate
 	}
-	//ErrorContextValidator struct {
-	//	Validator *validator.Validate
-	//}
-
-	GlobalErrorHandlerResp struct {
+	ErrorHandlerResp struct {
 		Success bool   `json:"success"`
 		Message string `json:"message"`
 	}
-
 	KeyValue[T, S any] struct {
 		Key T
 		Val S
