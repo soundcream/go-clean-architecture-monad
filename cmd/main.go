@@ -9,7 +9,6 @@ import (
 // @title Swagger API
 // @version 1.0
 // @description Doc
-// @host test.com
 // @BasePath /
 // @securityDefinitions.apikey Bearer
 // @in header

@@ -1,0 +1,11 @@
+app :
+  appName: "My Clean Architecture (develop)"
+  domain: "Core"
+  httpPort: 8080
+
+dbConfig:
+  host: 127.0.0.1
+  port: 5432
+  dbName: test
+  username: postgres
+  password: 1234

@@ -15,6 +15,7 @@ import (
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
 	"n4a3/clean-architecture/app/validators"
+	"os"
 )
 
 type Application struct {
@@ -80,14 +81,14 @@ func (a *Application) SetupI18n() {
 }
 
 func (a *Application) SetupAppConfig() {
-	err := viper.BindEnv("ENV")
-	if err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
-	}
-	viper.SetConfigName("config")
+	//if err != nil {
+	//	panic(fmt.Errorf("fatal error config file: %w", err))
+	//}
+	env := os.Getenv(base.Environment)
+	viper.SetConfigName(fmt.Sprintf("config.%s", env))
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./conf")
-	err = viper.ReadInConfig()
+	err := viper.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
@@ -111,7 +112,7 @@ func (a *Application) SetupAppConfig() {
 
 	appName := viper.GetString("app.appName")
 	domain := viper.GetString("app.domain")
-	fmt.Printf("Initialized Config... App:%s; Domain:%s", appName, domain)
+	fmt.Printf("Initialized (%s)Config... App:%s; Domain:%s", env, appName, domain)
 }
 
 func (a *Application) SetupValidator() {
@@ -161,6 +162,7 @@ func NewApp() Application {
 	app := fiber.New(fiber.Config{
 		// Global custom error handler
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			log.Printf("%+v", err)
 			return c.Status(fiber.StatusBadRequest).JSON(global.ErrorHandlerResp{
 				Success: false,
 				Message: err.Error(),

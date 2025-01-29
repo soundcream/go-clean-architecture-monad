@@ -6,7 +6,11 @@ type ErrorCode int
 type FieldInvalidCode int
 type ValidateType string
 
-// Request Error
+const (
+	Environment = "env"
+)
+
+// ErrorCode Error Code
 const (
 	NotFound      ErrorCode = 100 // Error Data Notfound
 	BadRequest    ErrorCode = 101 // Error Invalid Model, null
@@ -16,7 +20,7 @@ const (
 	UnHandleError ErrorCode = 500 // Internal Server Error, UnHandle Error
 )
 
-// Field Error
+// FieldInvalidCode Error Code
 const (
 	ValueInvalidate    FieldInvalidCode = 1000 // Error Required
 	ValueCannotBeNull  FieldInvalidCode = 1001 // Error Required
@@ -25,6 +29,7 @@ const (
 	ValueInvalidFormat FieldInvalidCode = 1004 // Error Required
 )
 
+// Validation Tag
 const (
 	ValidateTeen          ValidateType = "teen-person"
 	ValidateEmailUsername ValidateType = "username-email"
