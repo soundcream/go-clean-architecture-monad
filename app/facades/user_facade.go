@@ -72,15 +72,6 @@ func (f *userFacade) TestThen() *entity.Txn {
 	return tx.Right
 }
 
-//
-//func (f *userFacade) TestNext() *entity.Txn {
-//
-//}
-//
-//func (f *userFacade) TestDoNext() *entity.Txn {
-//
-//}
-
 func (f *userFacade) RemoveUserById_Before(id int) (*entity.User, base.ErrContext) {
 	r1 := doSome1(id)
 	if r1.IsRight() {
@@ -106,14 +97,15 @@ func (f *userFacade) RemoveUserById_Before(id int) (*entity.User, base.ErrContex
 			return nil, base.NewBadError()
 		}
 	}
-
 	return nil, base.NewBadError()
 }
 
 func (f *userFacade) RemoveUserById_After(id int) base.Either[entity.User, base.ErrContext] {
-	result := doSome1(id).
-		Then(doSome4).
-		Then(doSome5)
+	s1 := doSome1(id)
+	s2 := either.Bind(s1, doSome4)
+	s3 := either.Bind(s2, doSome5)
+	s4 := either.Bind(s3, doSome3)
+	result := either.Bind(s4, doSome2)
 	return result.BindErrContext(handleUserError)
 }
 

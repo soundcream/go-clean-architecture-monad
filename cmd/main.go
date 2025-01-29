@@ -15,11 +15,19 @@ import (
 	_ "n4a3/clean-architecture/docs"
 )
 
+// @title Swagger API
+// @version 1.0
+// @description Doc
+// @host test.com
+// @BasePath /
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
 func main() {
 	app := core.NewApp()
-
 	core.SetupLog(app)
 	core.SetupSwagger(app)
+	core.MapRoute(app)
 
 	myValidator := &global.XValidator{
 		Validator: validator.New(),
@@ -64,8 +72,6 @@ func main() {
 		result := base.NewErrContextFromInvalidateField(errs)
 		return c.JSON(result)
 	})
-
-	core.MapRoute(app)
 
 	// set header
 	app.Use(func(c *fiber.Ctx) error {

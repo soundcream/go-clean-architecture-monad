@@ -91,14 +91,14 @@ func NewErrContextFromInvalidateField(invalidates []global.InvalidateField) *Err
 	if len(invalidates) == 0 {
 		return nil
 	}
-	err := collection.NewMapping[global.InvalidateField, ErrExt](invalidates).Map(func(field global.InvalidateField) ErrExt {
-		return ErrExt{
-			Code:  int(ValueInvalidate),
-			Field: field.FailedField,
-			Msg:   ValueInvalidate.GetErrorMsg(),
-		}
-	})
-	result := NewInvalidateExtError(err)
+	result := NewInvalidateExtError(
+		collection.NewMapping[global.InvalidateField, ErrExt](invalidates).Map(func(field global.InvalidateField) ErrExt {
+			return ErrExt{
+				Code:  int(ValueInvalidate),
+				Field: field.FailedField,
+				Msg:   ValueInvalidate.GetErrorMsg(),
+			}
+		}))
 	return &result
 }
 

@@ -33,11 +33,11 @@ func (u *UserController) GetUsers(c *fiber.Ctx) error {
 }
 
 func (u *UserController) GetUser(c *fiber.Ctx) error {
-	users, err := u.Facade.CreateUser("", "")
+	user, err := u.Facade.CreateUser("", "")
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
-	return c.JSON(users)
+	return c.JSON(user)
 }
 
 func (u *UserController) TestValidate(c *fiber.Ctx) error {
