@@ -28,5 +28,5 @@ func (r *userRepository) GetById(id int) *entity.User {
 }
 
 func (r *userRepository) GetByIdIncludeUserGroup(id int) *entity.User {
-	return r.FindByIdIncludes(id, "UserGroup")
+	return r.FindByIdPreload(id, map[string][]interface{}{"UserGroup": {}})
 }

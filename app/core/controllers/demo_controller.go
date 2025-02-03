@@ -16,12 +16,11 @@ type DemoController struct {
 }
 
 func NewDemoController(config *global.Config) *DemoController {
-	repo := db.NewReadOnlyRepository[entity.User](db.NewQueryUnitOfWork(config).Right)
-	repo2 := repository.NewUserRepository(db.NewQueryUnitOfWork(config).Right)
+	repo := repository.NewUserRepository(db.NewQueryUnitOfWork(config).Right)
 	return &DemoController{
 		Config:      config,
 		Facade:      facades.NewDemoFacade(),
-		QueryFacade: facades.NewQueryFacade(repo2, repo),
+		QueryFacade: facades.NewQueryFacade(repo),
 	}
 }
 

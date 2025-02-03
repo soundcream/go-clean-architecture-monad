@@ -7,7 +7,8 @@ import (
 )
 
 type ReadOnlyRepository[Entity entity.IBaseEntity] interface {
-	FindByIdIncludes(id int, preloads ...string) *Entity
+	FindByIdPreload(id int, preloads map[string][]interface{}) *Entity
+
 	FindById(id int) *Entity
 	FindBy(query interface{}, args ...interface{}) *Entity
 	FindOrderBy(query interface{}, order interface{}, args ...interface{}) *Entity
@@ -23,6 +24,7 @@ type ReadOnlyRepository[Entity entity.IBaseEntity] interface {
 	SumBigWith(query interface{}, args ...interface{}) *big.Float
 
 	WhereTest() []Entity
+	Query() QueryContext[Entity]
 }
 
 type readOnlyRepository[Entity entity.IBaseEntity] struct {
@@ -38,11 +40,11 @@ func NewReadOnlyRepository[Entity entity.IBaseEntity](uow *QueryUnitOfWork) Read
 	}
 }
 
-func (repo *readOnlyRepository[Entity]) FindByIdIncludes(id int, preloads ...string) *Entity {
+func (repo *readOnlyRepository[Entity]) FindByIdPreload(id int, preloads map[string][]interface{}) *Entity {
 	var result Entity
 	query := repo.UoW.DB().Model(&result)
-	for _, preload := range preloads {
-		query = query.Preload(preload)
+	for k, preload := range preloads {
+		query = query.Preload(k, preload...)
 	}
 	query.Take(&result, id)
 	return &result
@@ -122,8 +124,8 @@ func (repo *readOnlyRepository[Entity]) WhereWithOrderBy(query interface{}, orde
 	return result
 }
 
-func (repo *readOnlyRepository[Entity]) Query() QueryContext {
-	return NewQueryContext(repo.UoW.DB())
+func (repo *readOnlyRepository[Entity]) Query() QueryContext[Entity] {
+	return NewQueryContext[Entity](repo.UoW.DB())
 }
 
 func (repo *readOnlyRepository[Entity]) WhereTest() []Entity {

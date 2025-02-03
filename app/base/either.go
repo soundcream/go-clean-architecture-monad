@@ -17,7 +17,6 @@ func (e Either[R, L]) IsLeft() bool {
 }
 
 // Then chains another if Right. And change Right (side effect)
-// UseCase
 func (e Either[R, L]) Then(fun func(R) Either[R, L]) Either[R, L] {
 	if e.IsLeft() {
 		return LeftEither[R, L](*e.Left)
@@ -26,7 +25,6 @@ func (e Either[R, L]) Then(fun func(R) Either[R, L]) Either[R, L] {
 }
 
 // ThenPtr chains another if Right. And change Right (side effect)
-// UseCase
 func (e Either[R, L]) ThenPtr(fun func(*R) Either[R, L]) Either[R, L] {
 	if e.IsLeft() {
 		return LeftEither[R, L](*e.Left)
@@ -35,7 +33,6 @@ func (e Either[R, L]) ThenPtr(fun func(*R) Either[R, L]) Either[R, L] {
 }
 
 // Next chains another if Right. And not change Right
-// UseCase
 func (e Either[R, L]) Next(fun func(R) Either[R, L]) Either[R, L] {
 	if e.IsLeft() || e.Right == nil {
 		return e
@@ -45,7 +42,6 @@ func (e Either[R, L]) Next(fun func(R) Either[R, L]) Either[R, L] {
 }
 
 // NextPtr chains another if Right. And not change Right
-// UseCase
 func (e Either[R, L]) NextPtr(fun func(*R) Either[R, L]) Either[R, L] {
 	if e.IsLeft() || e.Right == nil {
 		return e
@@ -61,20 +57,6 @@ func (e Either[R, L]) BindErrContext(fun func(L) Either[R, ErrContext]) Either[R
 	}
 	return RightEither[R, ErrContext](*e.Right)
 }
-
-// DoNext always chains another if Right is not nil. And not change Right
-// UseCase validate with response all invalidate.
-//func (c Either[R, L]) DoNext(fun func(R) Either[R, L]) Either[R, []*L] {
-//	if c.Right == nil {
-//		return LeftEither[R, []*L]([]*L{c.Left})
-//	}
-//	e := fun(*c.Right)
-//	lefts := []*L{
-//		c.Left,
-//		e.Left,
-//	}
-//	return Either[R, []*L]{Right: c.Right, Left: &lefts}
-//}
 
 func (c Either[R, L]) DoNext(fun func(*R, *L) Either[R, ErrContext]) Either[R, ErrContext] {
 	e := fun(c.Right, c.Left)

@@ -72,34 +72,6 @@ func (f *userFacade) TestThen() *entity.Txn {
 	return tx.Right
 }
 
-func (f *userFacade) RemoveUserById_Before(id int) (*entity.User, base.ErrContext) {
-	r1 := doSome1(id)
-	if r1.IsRight() {
-		r2 := doSome4(*r1.Right)
-		if r2.IsRight() {
-			r3 := doSome5(*r2.Right)
-			if r3.IsRight() {
-				r4 := doSome3(*r3.Right)
-				if r4.IsRight() {
-					r5 := doSome2(*r4.Right)
-					if r5.IsRight() {
-						return r5.Right, base.NewError(base.UnHandleError, *r5.Left)
-					} else {
-						return nil, base.NewError(base.UnHandleError, *r4.Left)
-					}
-				} else {
-					return nil, base.NewErrorWithCode(base.BadRequest)
-				}
-			} else {
-				return nil, base.NewErrorWithCode(base.BadRequest)
-			}
-		} else {
-			return nil, base.NewErrorWithCode(base.BadRequest)
-		}
-	}
-	return nil, base.NewErrorWithCode(base.BadRequest)
-}
-
 func (f *userFacade) RemoveUserById_After(id int) base.Either[entity.User, base.ErrContext] {
 	s1 := doSome1(id)
 	s2 := either.Bind(s1, doSome4)
@@ -136,9 +108,7 @@ func (f *userFacade) RemoveUserByIdFinal22(id int) *entity.User {
 }
 
 func (f *userFacade) TestValidate(u *entity.User) *base.ErrContext {
-	result := vStep1(u).
-		DoNext(vStep2).
-		DoNext(f.vStep3)
+	result := vStep1(u).DoNext(vStep2).DoNext(f.vStep3)
 	return result.Left
 }
 
