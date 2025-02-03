@@ -9,24 +9,28 @@ import (
 )
 
 type QueryFacade struct {
-	userRepository  db.ReadOnlyRepository[entity.User]
-	userRepository2 repository.UserRepository
+	//userRepo       db.ReadOnlyRepository[entity.User]
+	userRepository repository.UserRepository
 }
 
 func NewQueryFacade(userRepository2 repository.UserRepository, userRepository db.ReadOnlyRepository[entity.User]) QueryFacade {
 	return QueryFacade{
-		userRepository2: userRepository2,
-		userRepository:  userRepository,
+		userRepository: userRepository2,
+		//userRepo:       userRepository,
 	}
 }
 
 func (f QueryFacade) GetUser() base.Either[entity.User, base.ErrContext] {
-	user := f.userRepository2.GetById(1)
+	user := f.userRepository.GetById(1)
 	user2 := f.userRepository.FindById(1)
-	up := f.userRepository.Count("point > ?", 1)
-	up2 := f.userRepository.BigCount("point > ?", 1)
+	up := f.userRepository.Count("point > 1")
+	up2 := f.userRepository.CountWith("point > ?", 1)
 	w1 := f.userRepository.Where("length(name) > 4")
 	w2 := f.userRepository.WhereWith("name LIKE ?", "%te%")
-	fmt.Println(user2, up, up2, w1, w2)
+
+	ug := f.userRepository.FindByIdIncludes(3, "UserGroup")
+	//ug := f.userRepo.FindByIdLoad(3)
+
+	fmt.Println(user2, up, up2, w1, w2, ug)
 	return base.RightEither[entity.User, base.ErrContext](*user)
 }

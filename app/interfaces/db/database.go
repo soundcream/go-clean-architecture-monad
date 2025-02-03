@@ -9,26 +9,25 @@ import (
 	"n4a3/clean-architecture/app/base/global"
 )
 
-type IDbContext interface {
+type Context interface {
 	Query() *gorm.DB
 	BeginReadCommitTx() TransactionContext
 	DoTransaction(func(*TransactionContext) error) error
 }
 
-type Context struct {
-	conString string
-	db        *gorm.DB
+type dbContext struct {
+	db *gorm.DB
 }
 
 type TransactionContext struct {
 	dbTx *gorm.DB
 }
 
-func (c Context) Query() *gorm.DB {
+func (c dbContext) Query() *gorm.DB {
 	return c.db
 }
 
-func (c Context) BeginReadCommitTx() TransactionContext {
+func (c dbContext) BeginReadCommitTx() TransactionContext {
 	tx := c.db.Begin(&sql.TxOptions{
 		Isolation: sql.LevelReadCommitted,
 		ReadOnly:  false,
@@ -38,7 +37,7 @@ func (c Context) BeginReadCommitTx() TransactionContext {
 	}
 }
 
-func (c Context) DoTransaction(fn func(*TransactionContext) error) error {
+func (c dbContext) DoTransaction(fn func(*TransactionContext) error) error {
 	err := c.db.Transaction(func(db *gorm.DB) error {
 		tx := TransactionContext{
 			dbTx: db,
@@ -73,21 +72,21 @@ func getDSN(config *global.Config) string {
 		config.DbConfig.Port)
 }
 
-func NewDbContextFromConfig(config *global.Config) (*Context, error) {
+func NewDbContextFromConfig(config *global.Config) (Context, error) {
 	db, err := gorm.Open(postgres.Open(getDSN(config)), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Error),
 	})
 	if err != nil {
 		return nil, err
 	}
-	context := &Context{
+	context := &dbContext{
 		db: db,
 	}
 	return context, nil
 }
 
-func NewDbContext(db *gorm.DB) (IDbContext, error) {
-	return &Context{
+func NewDbContext(db *gorm.DB) (Context, error) {
+	return &dbContext{
 		db: db,
 	}, nil
 }

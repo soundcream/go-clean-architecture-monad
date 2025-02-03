@@ -11,7 +11,7 @@ type QueryUnitOfWork interface {
 	Query(dest interface{}, sql string, values ...interface{})
 }
 type UnitOfWorkReader struct {
-	DbContext IDbContext
+	DbContext Context
 	//Db        *gorm.DB
 }
 
@@ -26,10 +26,10 @@ func (uow *UnitOfWorkReader) Query(dest interface{}, sql string, values ...inter
 type CommandUnitOfWork interface {
 	BeginReadCommitTx() TransactionContext
 	DoTransaction(func(*TransactionContext) error) error
-	//Transaction(func(*IDbContext) error) error
+	//Transaction(func(*Context) error) error
 }
 type UnitOfWorkWrite struct {
-	DbContext IDbContext
+	DbContext Context
 	//Db        *gorm.DB
 }
 

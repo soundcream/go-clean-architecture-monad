@@ -2,9 +2,11 @@ package db
 
 import "n4a3/clean-architecture/app/domain/entity"
 
-type IRepository interface {
+type Repository[Entity entity.IBaseEntity] interface {
+	ReadOnlyRepository[Entity]
 }
 
-type Repository[Entity entity.IBaseEntity] struct {
-	UoW CommandUnitOfWork
+type repository[Entity entity.IBaseEntity] struct {
+	UoW       CommandUnitOfWork
+	TableName string
 }

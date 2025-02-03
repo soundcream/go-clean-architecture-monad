@@ -1,73 +1,196 @@
 package db
 
 import (
+	"math/big"
 	"n4a3/clean-architecture/app/base/generic"
 	"n4a3/clean-architecture/app/domain/entity"
 )
 
-type ReadOnlyRepository[Entity entity.IBaseEntity] struct {
+type ReadOnlyRepository[Entity entity.IBaseEntity] interface {
+	FindByIdIncludes(id int, preloads ...string) *Entity
+	FindById(id int) *Entity
+	FindBy(query interface{}, args ...interface{}) *Entity
+	FindOrderBy(query interface{}, order interface{}, args ...interface{}) *Entity
+	Where(query interface{}) []Entity
+	WhereWith(query interface{}, args ...interface{}) []Entity
+	WhereOrderBy(query interface{}, order interface{}) []Entity
+	WhereWithOrderBy(query interface{}, order interface{}, args ...interface{}) []Entity
+	Count(query interface{}) *int64
+	CountWith(query interface{}, args ...interface{}) *int64
+	Sum(query interface{}) *int
+	SumWith(query interface{}, args ...interface{}) *int
+	SumBig(query interface{}) *big.Float
+	SumBigWith(query interface{}, args ...interface{}) *big.Float
+}
+
+type readOnlyRepository[Entity entity.IBaseEntity] struct {
 	UoW       QueryUnitOfWork
 	TableName string
 }
 
 func NewReadOnlyRepository[Entity entity.IBaseEntity](uow *QueryUnitOfWork) ReadOnlyRepository[Entity] {
 	tableName := generic.GetTagByName[Entity]("table-name")
-	return ReadOnlyRepository[Entity]{
+	return &readOnlyRepository[Entity]{
 		UoW:       *uow,
 		TableName: tableName,
 	}
 }
 
-func (repo ReadOnlyRepository[Entity]) FindById(id int) *Entity {
+func (repo *readOnlyRepository[Entity]) FindByIdIncludes(id int, preloads ...string) *Entity {
+	var result Entity
+	query := repo.UoW.DB().Model(&result)
+	for _, preload := range preloads {
+		query = query.Preload(preload)
+	}
+	query.Take(&result, id)
+	return &result
+}
+
+func (repo *readOnlyRepository[Entity]) FindByIdLeftJoins(id int, joins ...string) *Entity {
+	var result Entity
+	query := repo.UoW.DB().Model(&result)
+	for _, join := range joins {
+		query = query.Joins(join)
+	}
+	query.Take(&result, id)
+	return &result
+}
+
+func (repo *readOnlyRepository[Entity]) FindByIdInnerJoins(id int, joins ...string) *Entity {
+	var result Entity
+	query := repo.UoW.DB().Model(&result)
+	for _, join := range joins {
+		query = query.InnerJoins(join)
+	}
+	query.Take(&result, id)
+	return &result
+}
+
+func (repo *readOnlyRepository[Entity]) FindById(id int) *Entity {
 	var result Entity
 	repo.UoW.DB().Table(repo.TableName).Take(&result, id)
 	return &result
 }
 
-func (repo ReadOnlyRepository[Entity]) FindBy(query interface{}, args ...interface{}) *Entity {
+func (repo *readOnlyRepository[Entity]) FindBy(query interface{}, args ...interface{}) *Entity {
+	if args == nil {
+		panic("method FindBy, args cannot be nil")
+	}
 	var result Entity
 	repo.UoW.DB().Table(repo.TableName).Where(query, args).First(&result)
 	return &result
 }
 
-func (repo ReadOnlyRepository[Entity]) Where(query interface{}) []Entity {
-	var result []Entity
-	repo.UoW.DB().Table(repo.TableName).Where(query).Find(&result)
-	return result
-}
-
-func (repo ReadOnlyRepository[Entity]) WhereWith(query interface{}, args ...interface{}) []Entity {
-	var result []Entity
-	repo.UoW.DB().Table(repo.TableName).Where(query, args).Find(&result)
-	return result
-}
-
-func (repo ReadOnlyRepository[Entity]) FindOrderBy(query interface{}, order interface{}, args ...interface{}) *Entity {
+func (repo *readOnlyRepository[Entity]) FindOrderBy(query interface{}, order interface{}, args ...interface{}) *Entity {
+	if args == nil {
+		panic("method FindOrderBy, args cannot be nil")
+	}
 	var result Entity
 	repo.UoW.DB().Table(repo.TableName).Where(query, args).Order(order).First(&result)
 	return &result
 }
 
-func (repo ReadOnlyRepository[Entity]) WhereOrderBy(query interface{}, order interface{}) []Entity {
+func (repo *readOnlyRepository[Entity]) Where(query interface{}) []Entity {
+	var result []Entity
+	repo.UoW.DB().Table(repo.TableName).Where(query).Find(&result)
+	return result
+}
+
+func (repo *readOnlyRepository[Entity]) WhereWith(query interface{}, args ...interface{}) []Entity {
+	if args == nil {
+		panic("method WhereWith, args cannot be nil")
+	}
+	var result []Entity
+	repo.UoW.DB().Table(repo.TableName).Where(query, args).Find(&result)
+	return result
+}
+
+func (repo *readOnlyRepository[Entity]) WhereOrderBy(query interface{}, order interface{}) []Entity {
 	var result []Entity
 	repo.UoW.DB().Table(repo.TableName).Find(&result).Where(query).Order(order)
 	return result
 }
 
-func (repo ReadOnlyRepository[Entity]) WhereWithOrderBy(query interface{}, order interface{}, args ...interface{}) []Entity {
+func (repo *readOnlyRepository[Entity]) WhereWithOrderBy(query interface{}, order interface{}, args ...interface{}) []Entity {
+	if args == nil {
+		panic("method WhereWithOrderBy, args cannot be nil")
+	}
 	var result []Entity
 	repo.UoW.DB().Table(repo.TableName).Find(&result).Where(query, args).Order(order)
 	return result
 }
 
-func (repo ReadOnlyRepository[Entity]) Count(query interface{}, args ...interface{}) int {
-	var result int
-	repo.UoW.DB().Table(repo.TableName).Where(query, args).First(&result)
+func (repo *readOnlyRepository[Entity]) WherePaging(query interface{}, limit int, offset int) []Entity {
+	var result []Entity
+	repo.UoW.DB().Table(repo.TableName).Where(query).Limit(limit).Offset(offset).Find(&result)
 	return result
 }
 
-func (repo ReadOnlyRepository[Entity]) BigCount(query interface{}, args ...interface{}) int64 {
-	var result int64
-	repo.UoW.DB().Table(repo.TableName).Where(query, args).First(&result)
+func (repo *readOnlyRepository[Entity]) WherePagingWith(query interface{}, limit int, offset int, args ...interface{}) []Entity {
+	if args == nil {
+		panic("method WherePagingWith, args cannot be nil")
+	}
+	var result []Entity
+	repo.UoW.DB().Table(repo.TableName).Where(query, args).Limit(limit).Offset(offset).Find(&result)
+	return result
+}
+
+func (repo *readOnlyRepository[Entity]) WherePagingOrderBy(query interface{}, limit int, offset int, order interface{}) []Entity {
+	var result []Entity
+	repo.UoW.DB().Table(repo.TableName).Find(&result).Where(query).Limit(limit).Offset(offset).Order(order)
+	return result
+}
+
+func (repo *readOnlyRepository[Entity]) WherePagingWithOrderBy(query interface{}, limit int, offset int, order interface{}, args ...interface{}) []Entity {
+	if args == nil {
+		panic("method WherePagingWithOrderBy, args cannot be nil")
+	}
+	var result []Entity
+	repo.UoW.DB().Table(repo.TableName).Find(&result).Where(query, args).Limit(limit).Offset(offset).Order(order)
+	return result
+}
+
+func (repo *readOnlyRepository[Entity]) Count(query interface{}) *int64 {
+	result := new(int64)
+	repo.UoW.DB().Table(repo.TableName).Where(query).Count(result)
+	return result
+}
+
+func (repo *readOnlyRepository[Entity]) CountWith(query interface{}, args ...interface{}) *int64 {
+	if args == nil {
+		panic("method CountWith, args cannot be nil")
+	}
+	result := new(int64)
+	repo.UoW.DB().Table(repo.TableName).Where(query, args).Count(result)
+	return result
+}
+
+func (repo *readOnlyRepository[Entity]) Sum(query interface{}) *int {
+	result := new(int)
+	repo.UoW.DB().Table(repo.TableName).Where(query).Scan(&result)
+	return result
+}
+
+func (repo *readOnlyRepository[Entity]) SumWith(query interface{}, args ...interface{}) *int {
+	if args == nil {
+		panic("method SumWith, args cannot be nil")
+	}
+	result := new(int)
+	repo.UoW.DB().Table(repo.TableName).Where(query, args).Scan(&result)
+	return result
+}
+
+func (repo *readOnlyRepository[Entity]) SumBig(query interface{}) *big.Float {
+	result := new(big.Float)
+	repo.UoW.DB().Table(repo.TableName).Where(query).Scan(&result)
+	return result
+}
+
+func (repo *readOnlyRepository[Entity]) SumBigWith(query interface{}, args ...interface{}) *big.Float {
+	if args == nil {
+		panic("method SumBigWith, args cannot be nil")
+	}
+	result := new(big.Float)
+	repo.UoW.DB().Table(repo.TableName).Where(query, args).Scan(&result)
 	return result
 }
