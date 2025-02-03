@@ -1,4 +1,4 @@
-package core
+package dto
 
 import (
 	"n4a3/clean-architecture/app/base"
@@ -44,4 +44,16 @@ func ErrorUnHandlerResponse() Response[string] {
 			Message: base.UnHandleError.GetDefaultErrorMsg(),
 		},
 	}
+}
+
+type PagingDto struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+type PaginationDto[T any] struct {
+	Data  []T `json:"data"`
+	Total int `json:"total"`
+	Page  int `json:"page"`
+	Limit int `json:"limit"`
 }

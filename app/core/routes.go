@@ -3,11 +3,9 @@ package core
 import (
 	"github.com/gofiber/fiber/v2"
 	"n4a3/clean-architecture/app/core/controllers"
-	"n4a3/clean-architecture/app/facades"
-	"n4a3/clean-architecture/app/interfaces/repository"
 )
 
-func (a *Application) MapRoute() {
+func (a *AppContext) MapRoute() {
 	// default Routes
 	a.app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"message": "pong"})
@@ -26,29 +24,10 @@ func (a *Application) MapRoute() {
 	api := a.app.Group("/api", middleware)
 
 	// Stateless Controller
-	MapStateLessUserController(api.Group("/user"))
+	controllers.ConfigUserController(a.Config).MapRoute(api.Group("/user"))
 
 	// Stateful Controller
-	controllers.NewDemoController().MapRoute(api.Group("/demo"))
-}
-
-// TOD use DI
-func getUserController() controllers.UserController {
-	ur := repository.NewUserRepository()
-	uf := facades.NewUserFacade(ur)
-	uc := controllers.NewUserController(uf)
-	return *uc
-}
-
-func MapStateLessUserController(route fiber.Router) {
-	route.Get("/users", func(c *fiber.Ctx) error {
-		con := getUserController()
-		return con.GetUsers(c)
-	})
-	route.Get("/validate", func(c *fiber.Ctx) error {
-		con := getUserController()
-		return con.TestValidate(c)
-	})
+	controllers.NewDemoController(a.Config).MapRoute(api.Group("/demo"))
 }
 
 func middleware(c *fiber.Ctx) error {

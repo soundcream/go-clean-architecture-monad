@@ -9,7 +9,7 @@ type Unit struct {
 }
 
 func (e Either[R, L]) IsRight() bool {
-	return e.Right != nil
+	return e.Right != nil && !e.IsLeft()
 }
 
 func (e Either[R, L]) IsLeft() bool {

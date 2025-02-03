@@ -2,18 +2,43 @@ package controllers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"n4a3/clean-architecture/app/base/global"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/facades"
+	"n4a3/clean-architecture/app/interfaces/db"
+	"n4a3/clean-architecture/app/interfaces/repository"
 )
 
 // UserController is responsible for handling user-related routes.
 type UserController struct {
 	Facade facades.UserFacade
-	Ctx    *fiber.Ctx
+	Config *global.Config
 }
 
-func NewUserController(facade facades.UserFacade) *UserController {
-	return &UserController{Facade: facade}
+func (u *UserController) MapRoute(route fiber.Router) {
+	route.Get("/users", func(c *fiber.Ctx) error {
+		return NewUserController(u.Config).GetUsers(c)
+	})
+	route.Get("/validate", func(c *fiber.Ctx) error {
+		return NewUserController(u.Config).TestValidate(c)
+	})
+}
+
+func ConfigUserController(config *global.Config) *UserController {
+	return &UserController{
+		Config: config,
+	}
+}
+
+func NewUserController(config *global.Config) *UserController {
+	qUoW := db.NewQueryUnitOfWork(config)
+	//uow := db.NewQueryUnitOfWork(config)
+	ur := repository.NewUserRepository(qUoW.Right)
+	uf := facades.NewUserFacade(ur)
+	return &UserController{
+		Config: config,
+		Facade: uf,
+	}
 }
 
 // GetUsers @Summary Get a list of users
@@ -38,7 +63,7 @@ func (u *UserController) GetUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
-	return c.JSON(user)
+	return OkResult(c, user)
 }
 
 func (u *UserController) TestValidate(c *fiber.Ctx) error {

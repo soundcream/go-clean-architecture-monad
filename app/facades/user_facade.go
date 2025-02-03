@@ -150,7 +150,7 @@ func (f *userFacade) TestValidate2(u *entity.User) *base.ErrContext {
 }
 
 func validateUserStep1(u *entity.User) base.Either[entity.User, base.ErrContext] {
-	if u.ID >= 0 {
+	if u.Id >= 0 {
 		return base.NewEither(u, base.NewInvalidateError("ID", base.ValueNotInScope))
 	}
 	return base.RightEither[entity.User, base.ErrContext](*u)
@@ -172,7 +172,7 @@ func (f *userFacade) validateUserStep3(u *entity.User, err *base.ErrContext) bas
 
 func vStep1(u *entity.User) base.Either[entity.User, base.ErrContext] {
 	return base.Validate(u, nil, func(u *entity.User) bool {
-		return u.ID > 0
+		return u.Id > 0
 	}, base.NewInvalidateError("ID", base.ValueNotInScope))
 }
 

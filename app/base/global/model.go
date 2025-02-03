@@ -10,9 +10,10 @@ func NewKeyValue[T, S any](key T, value S) KeyValue[T, S] {
 
 type (
 	Config struct {
-		App      AppConfig
-		DbConfig DbConfig
-		Public   []string
+		App          AppConfig
+		DbConfig     DbConfig
+		ReadDbConfig DbConfig
+		Public       []string
 	}
 	AppConfig struct {
 		AppName  string

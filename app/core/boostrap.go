@@ -15,20 +15,20 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
-
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/interfaces/dto"
 	"n4a3/clean-architecture/app/validators"
 	"os"
 	"time"
 )
 
-type Application struct {
+type AppContext struct {
 	app    *fiber.App
 	Config *global.Config
 }
 
-func (a *Application) SetupLog() {
+func (a *AppContext) SetupLog() {
 	// Initialize default config
 	a.app.Use(logger.New())
 
@@ -39,7 +39,7 @@ func (a *Application) SetupLog() {
 	}))
 }
 
-func (a *Application) SetupSwagger() {
+func (a *AppContext) SetupSwagger() {
 	swaggerConf := swagger.Config{
 		Title: "",
 		//URL:          "/docs/swagger.json",
@@ -59,7 +59,7 @@ func (a *Application) SetupSwagger() {
 	a.app.Get("/swagger/*", swagger.New(swaggerConf))
 }
 
-func (a *Application) SetupI18n() {
+func (a *AppContext) SetupI18n() {
 	a.app.Use(
 		fiberi18n.New(&fiberi18n.Config{
 			RootPath:         "./i18n",
@@ -85,7 +85,7 @@ func (a *Application) SetupI18n() {
 	})
 }
 
-func (a *Application) SetupAppConfig() {
+func (a *AppContext) SetupAppConfig() {
 	env := os.Getenv(base.Environment)
 	//viper.SetConfigName(fmt.Sprintf("config.%s", env))
 	//viper.SetConfigType("yaml")
@@ -118,7 +118,7 @@ func (a *Application) SetupAppConfig() {
 	fmt.Printf("Initialized (%s)Config... App:%s; Domain:%s", env, appName, domain)
 }
 
-func (a *Application) SetupValidator() {
+func (a *AppContext) SetupValidator() {
 	myValidator := &global.XValidator{
 		Validator: validator.New(),
 	}
@@ -137,17 +137,25 @@ func (a *Application) SetupValidator() {
 	})
 }
 
-func (a *Application) Bootstrapper() {
+func (a *AppContext) Bootstrapper() {
 	a.SetupAppConfig()
 	a.SetupLog()
 	a.SetupI18n()
 	a.SetupValidator()
 	a.SetupSwagger()
+	a.app.Use(CustomHandler)
 	a.SetupAuthorization()
 	a.MapRoute()
 }
 
-func (a *Application) SetupAuthorization() {
+// Sign-in @Summary
+// @Description
+// @Tags Sign-in
+// @Accept  json
+// @Produce  json
+// @Success 200
+// @Router /api/signin [get]
+func (a *AppContext) SetupAuthorization() {
 	useFavicon(a)
 
 	// GET TOKEN
@@ -161,6 +169,8 @@ func (a *Application) SetupAuthorization() {
 	//	ErrorHandler: UnauthorizedHandler,
 	//	SigningKey:   jwtware.SigningKey{Key: []byte("secret")},
 	//}))
+
+	//a.app.Use(JwtSecurityFilter)
 
 	// Basic Authorize Handler
 	a.app.Use(jwtware.New(jwtware.Config{
@@ -196,21 +206,24 @@ func restricted(c *fiber.Ctx) error {
 	return c.SendString("Welcome " + name)
 }
 
-func SecurityFilter(ctx *fiber.Ctx) bool {
+func JwtSecurityFilter(ctx *fiber.Ctx) bool {
 	name := ctx.OriginalURL()
 	path := ctx.Path()
 	fmt.Println(name)
 	fmt.Println(path)
-	return path == "/favicon.ico"
+	return true
+}
+
+func CustomHandler(ctx *fiber.Ctx) error {
+	return ctx.Next()
 }
 
 func UnauthorizedHandler(ctx *fiber.Ctx, err error) error {
-	return ctx.Status(fiber.StatusUnauthorized).JSON(ErrorContextResponse(base.NewErrorWithCode(base.Unauthorized)))
+	return ctx.Status(fiber.StatusUnauthorized).JSON(dto.ErrorContextResponse(base.NewErrorWithCode(base.Unauthorized)))
 }
 
-func useFavicon(a *Application) {
+func useFavicon(a *AppContext) {
 	a.app.Use(favicon.New())
-
 	// config for customization
 	//a.app.Use(favicon.New(favicon.Config{
 	//	File: "./favicon.ico",
@@ -218,7 +231,7 @@ func useFavicon(a *Application) {
 	//}))
 }
 
-func (a *Application) Start() {
+func (a *AppContext) Start() {
 	a.app.Use(func(c *fiber.Ctx) error {
 		c.Set("X-Service-Header", fmt.Sprintf("%s:%s", a.Config.App.AppName, a.Config.App.Domain))
 		return c.Next()
@@ -233,17 +246,17 @@ func (a *Application) Start() {
 	}
 }
 
-func NewApp() Application {
+func NewApp() AppContext {
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			log.Errorf("%+v", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse(global.ErrorHandlerResp{
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse(global.ErrorHandlerResp{
 				Code:    int(base.UnHandleError),
 				Message: base.UnHandleError.GetDefaultErrorMsg(),
 			}))
 		},
 	})
-	return Application{
+	return AppContext{
 		app: app,
 	}
 }
