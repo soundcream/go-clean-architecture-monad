@@ -21,6 +21,8 @@ type ReadOnlyRepository[Entity entity.IBaseEntity] interface {
 	SumWith(query interface{}, args ...interface{}) *int
 	SumBig(query interface{}) *big.Float
 	SumBigWith(query interface{}, args ...interface{}) *big.Float
+
+	WhereTest() []Entity
 }
 
 type readOnlyRepository[Entity entity.IBaseEntity] struct {
@@ -120,33 +122,13 @@ func (repo *readOnlyRepository[Entity]) WhereWithOrderBy(query interface{}, orde
 	return result
 }
 
-func (repo *readOnlyRepository[Entity]) WherePaging(query interface{}, limit int, offset int) []Entity {
-	var result []Entity
-	repo.UoW.DB().Table(repo.TableName).Where(query).Limit(limit).Offset(offset).Find(&result)
-	return result
+func (repo *readOnlyRepository[Entity]) Query() QueryContext {
+	return NewQueryContext(repo.UoW.DB())
 }
 
-func (repo *readOnlyRepository[Entity]) WherePagingWith(query interface{}, limit int, offset int, args ...interface{}) []Entity {
-	if args == nil {
-		panic("method WherePagingWith, args cannot be nil")
-	}
+func (repo *readOnlyRepository[Entity]) WhereTest() []Entity {
 	var result []Entity
-	repo.UoW.DB().Table(repo.TableName).Where(query, args).Limit(limit).Offset(offset).Find(&result)
-	return result
-}
-
-func (repo *readOnlyRepository[Entity]) WherePagingOrderBy(query interface{}, limit int, offset int, order interface{}) []Entity {
-	var result []Entity
-	repo.UoW.DB().Table(repo.TableName).Find(&result).Where(query).Limit(limit).Offset(offset).Order(order)
-	return result
-}
-
-func (repo *readOnlyRepository[Entity]) WherePagingWithOrderBy(query interface{}, limit int, offset int, order interface{}, args ...interface{}) []Entity {
-	if args == nil {
-		panic("method WherePagingWithOrderBy, args cannot be nil")
-	}
-	var result []Entity
-	repo.UoW.DB().Table(repo.TableName).Find(&result).Where(query, args).Limit(limit).Offset(offset).Order(order)
+	repo.Query().Where("point > ?", "1").Order("point desc").Find(&result)
 	return result
 }
 

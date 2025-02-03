@@ -29,8 +29,10 @@ func (f QueryFacade) GetUser() base.Either[entity.User, base.ErrContext] {
 	w2 := f.userRepository.WhereWith("name LIKE ?", "%te%")
 
 	ug := f.userRepository.FindByIdIncludes(3, "UserGroup")
+
+	wt := f.userRepository.WhereTest()
 	//ug := f.userRepo.FindByIdLoad(3)
 
-	fmt.Println(user2, up, up2, w1, w2, ug)
+	fmt.Println(user2, up, up2, w1, w2, ug, wt)
 	return base.RightEither[entity.User, base.ErrContext](*user)
 }
