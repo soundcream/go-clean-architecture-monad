@@ -1,13 +1,14 @@
 package repository
 
 import (
+	"n4a3/clean-architecture/app/base/util"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/interfaces/db"
 )
 
 type UserRepository interface {
 	db.ReadOnlyRepository[entity.User]
-	GetById(id int) *entity.User
+	GetSpecialLogicUser(id int) *entity.User
 }
 
 type userRepository struct {
@@ -23,10 +24,6 @@ func NewUserRepository(uow *db.QueryUnitOfWork) UserRepository {
 	}
 }
 
-func (r *userRepository) GetById(id int) *entity.User {
-	return r.FindById(id)
-}
-
-func (r *userRepository) GetByIdIncludeUserGroup(id int) *entity.User {
-	return r.FindByIdPreload(id, map[string][]interface{}{"UserGroup": {}})
+func (r *userRepository) GetSpecialLogicUser(id int) *entity.User {
+	return r.FindByIdPreload(id, util.Map("UserGroup"))
 }

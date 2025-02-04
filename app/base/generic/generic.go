@@ -32,6 +32,17 @@ func GetTagByName[T any](tag string) string {
 	return result
 }
 
+func GetFieldTagByName[T any](field string, tag string) string {
+	var result = ""
+	if field, ok := GetFieldByName[T](field); ok {
+		var tagValue = field.Tag.Get(tag)
+		if tagValue != "" {
+			return tagValue
+		}
+	}
+	return result
+}
+
 func GetAllFields[T any]() []reflect.StructField {
 	var result []reflect.StructField
 	var model T
@@ -43,4 +54,13 @@ func GetAllFields[T any]() []reflect.StructField {
 		result = append(result, typ.Field(i))
 	}
 	return result
+}
+
+func GetFieldByName[T any](field string) (reflect.StructField, bool) {
+	var model T
+	typ := reflect.TypeOf(model)
+	if typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
+	}
+	return typ.FieldByName(field)
 }

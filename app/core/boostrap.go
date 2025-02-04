@@ -17,6 +17,7 @@ import (
 	"golang.org/x/text/language"
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/domain"
 	"n4a3/clean-architecture/app/interfaces/dto"
 	"n4a3/clean-architecture/app/validators"
 	"os"
@@ -119,7 +120,7 @@ func (a *AppContext) SetupAppConfig() {
 }
 
 func (a *AppContext) SetupValidator() {
-	myValidator := &global.XValidator{
+	myValidator := &validators.XValidator{
 		Validator: validator.New(),
 	}
 	err := validators.RegisterIsTeenValidator(myValidator.Validator)
@@ -127,7 +128,7 @@ func (a *AppContext) SetupValidator() {
 		return
 	}
 	a.app.Get("/validate", func(c *fiber.Ctx) error {
-		user := &global.User{
+		user := &domain.User{
 			Name: "",
 			Age:  0,
 		}
