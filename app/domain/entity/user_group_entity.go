@@ -5,10 +5,27 @@ import (
 )
 
 type UserGroup struct {
-	BaseEntity  `table-name:"customer_groups"`
-	Name        string    `json:"name" example:"GOLD"`
-	Level       int       `json:"level" example:"1"`
-	IsActive    bool      `json:"isActive" example:"false"`
-	CreatedDate time.Time `json:"createdDate" example:"2020-01-01"`
+	BaseEntity
+	Name        string    `column:"name" json:"name" example:"GOLD"`
+	Level       int       `column:"level" json:"level" example:"1"`
+	IsActive    bool      `column:"is_active" json:"isActive" example:"false"`
+	CreatedDate time.Time `column:"created_date" json:"createdDate" example:"2020-01-01"`
 	Users       []User    `json:"users" gorm:"foreignKey:user_group_id"`
+}
+
+func (UserGroup) TableName() string {
+	return "user_groups"
+}
+
+type UserGroup2 struct {
+	BaseEntity
+	Name        string    `column:"name" json:"name" example:"GOLD"`
+	Level       int       `column:"level" json:"level" example:"1"`
+	IsActive    bool      `column:"is_active" json:"isActive" example:"false"`
+	CreatedDate time.Time `column:"created_date" json:"createdDate" example:"2020-01-01"`
+	Users       []User    `json:"users" gorm:"foreignKey:user_group_id"`
+}
+
+func (UserGroup2) TableName() string {
+	return "user_groups"
 }

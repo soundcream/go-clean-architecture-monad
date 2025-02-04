@@ -4,13 +4,17 @@ package entity
 // @Description A representation of a user.
 // @ID User
 type User struct {
-	BaseEntity  `table-name:"users"`
-	Name        string     `column:"name" json:"name" example:"John Doe"`
-	Username    string     `column:"username" json:"username" example:"JohnDoe"`
-	Email       string     `column:"email" json:"email" example:"john.doe@example.com"`
-	Point       *int       `column:"point" json:"point" example:"0"`
-	UserGroupId *int       `column:"user_group_id" json:"userGroupId" example:"0"`
-	UserGroup   *UserGroup `json:"userGroup" gorm:"foreignKey:user_group_id"`
+	BaseEntity
+	Name        string      `column:"name" json:"name" example:"John Doe"`
+	Username    string      `column:"username" json:"username" example:"JohnDoe"`
+	Email       string      `column:"email" json:"email" example:"john.doe@example.com"`
+	Point       *int        `column:"point" json:"point" example:"0"`
+	UserGroupId *int        `column:"user_group_id" json:"userGroupId" example:"0"`
+	UserGroup   *UserGroup2 `json:"userGroup" gorm:"foreignKey:user_group_id"`
+}
+
+func (User) TableName() string {
+	return "users"
 }
 
 type UserTx struct {

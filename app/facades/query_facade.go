@@ -25,7 +25,6 @@ func (f QueryFacade) GetUser() base.Either[entity.User, base.ErrContext] {
 	w2 := f.userRepository.Where("name LIKE ?", "%te%")
 
 	ug1 := f.userRepository.FindByIdPreloadInclude(3, entity.User{}.UserGroup, "is_active = ?", true)
-
 	ug := f.userRepository.FindByIdPreload(3, util.Map("UserGroup"))
 	fud := f.userRepository.FindByIdPreload(3, util.Map("UserGroup", "is_active = ?", true))
 	//ug := f.userRepo.FindByIdLoad(3)

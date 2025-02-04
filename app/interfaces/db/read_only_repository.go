@@ -3,7 +3,6 @@ package db
 import (
 	"gorm.io/gorm"
 	"math/big"
-	"n4a3/clean-architecture/app/base/generic"
 	"n4a3/clean-architecture/app/base/util"
 	stringutil "n4a3/clean-architecture/app/base/util/string"
 	"n4a3/clean-architecture/app/domain/entity"
@@ -37,10 +36,11 @@ type readOnlyRepository[Entity entity.IBaseEntity] struct {
 }
 
 func NewReadOnlyRepository[Entity entity.IBaseEntity](uow *QueryUnitOfWork) ReadOnlyRepository[Entity] {
-	tableName := generic.GetFieldTagByName[Entity]("BaseEntity", "table-name")
+	//tableName := generic.GetFieldTagByName[Entity]("BaseEntity", "table-name")
+	var e = *new(Entity)
 	return &readOnlyRepository[Entity]{
 		UoW:       *uow,
-		TableName: tableName,
+		TableName: e.TableName(),
 	}
 }
 

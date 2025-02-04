@@ -2,6 +2,7 @@ package entity
 
 type IBaseEntity interface {
 	GetId() int
+	TableName() string
 }
 
 type BaseEntity struct {
