@@ -4,7 +4,7 @@ import (
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/either"
 	"n4a3/clean-architecture/app/domain/entity"
-	"n4a3/clean-architecture/app/interfaces/repository"
+	"n4a3/clean-architecture/app/integrates/repository"
 )
 
 type UserFacade interface {
@@ -91,7 +91,7 @@ func (f *userFacade) RemoveUserById_After2(id int) base.Either[entity.User, base
 }
 
 func handleUserError(input error) base.Either[entity.User, base.ErrContext] {
-	return base.LeftEither[entity.User, base.ErrContext](base.NewError(base.UnHandleError, input))
+	return base.LeftEither[entity.User, base.ErrContext](base.NewErrorWithCode(base.UnHandleError, input))
 }
 
 func (f *userFacade) RemoveUserByIdFinal(id int) *entity.User {

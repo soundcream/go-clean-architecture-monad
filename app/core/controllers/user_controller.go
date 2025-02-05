@@ -5,8 +5,8 @@ import (
 	"n4a3/clean-architecture/app/base/global"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/facades"
-	"n4a3/clean-architecture/app/interfaces/db"
-	"n4a3/clean-architecture/app/interfaces/repository"
+	"n4a3/clean-architecture/app/integrates/db"
+	"n4a3/clean-architecture/app/integrates/repository"
 )
 
 // UserController is responsible for handling user-related routes.
@@ -32,8 +32,9 @@ func ConfigUserController(config *global.Config) *UserController {
 
 func NewUserController(config *global.Config) *UserController {
 	qUoW := db.NewQueryUnitOfWork(config)
+	uow := db.NewUnitOfWork(config)
 	//uow := db.NewQueryUnitOfWork(config)
-	ur := repository.NewUserRepository(qUoW.Right)
+	ur := repository.NewUserRepository(qUoW.Right, uow.Right)
 	uf := facades.NewUserFacade(ur)
 	return &UserController{
 		Config: config,

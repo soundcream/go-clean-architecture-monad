@@ -8,7 +8,7 @@ import (
 	"n4a3/clean-architecture/app/domain/entity"
 )
 
-type QueryContext[Entity entity.IBaseEntity] interface {
+type QueryContext[Entity entity.Entity] interface {
 	// Join LeftJoin ex: ("query = ?", "value")
 	Join(query string, args ...interface{}) QueryContext[Entity]
 	// Preload ex: ("query = ?", "value")
@@ -33,11 +33,11 @@ type QueryContext[Entity entity.IBaseEntity] interface {
 	ToPaging(limit int, offset int) global.PagingModel[Entity]
 }
 
-type queryContext[Entity entity.IBaseEntity] struct {
+type queryContext[Entity entity.Entity] struct {
 	db *gorm.DB
 }
 
-func NewQueryContext[Entity entity.IBaseEntity](db *gorm.DB) QueryContext[Entity] {
+func NewQueryContext[Entity entity.Entity](db *gorm.DB) QueryContext[Entity] {
 	return &queryContext[Entity]{
 		db: db,
 	}
@@ -104,6 +104,6 @@ func (q *queryContext[Entity]) Having(query string, args ...interface{}) QueryCo
 	return next[Entity](q.db.Having(query, args...))
 }
 
-func next[Entity entity.IBaseEntity](db *gorm.DB) QueryContext[Entity] {
+func next[Entity entity.Entity](db *gorm.DB) QueryContext[Entity] {
 	return NewQueryContext[Entity](db)
 }

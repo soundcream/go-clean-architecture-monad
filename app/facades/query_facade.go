@@ -5,7 +5,7 @@ import (
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/util"
 	"n4a3/clean-architecture/app/domain/entity"
-	"n4a3/clean-architecture/app/interfaces/repository"
+	"n4a3/clean-architecture/app/integrates/repository"
 )
 
 type QueryFacade struct {
@@ -19,7 +19,11 @@ func NewQueryFacade(repo repository.UserRepository) QueryFacade {
 }
 
 func (f QueryFacade) GetUser() base.Either[entity.User, base.ErrContext] {
+
 	user := f.userRepository.GetSpecialLogicUser(1)
+
+	user.SetUpdater("abc")
+	user.SetInserter("abc")
 	user2 := f.userRepository.FindById(1)
 	up2 := f.userRepository.Count("point > ?", 1)
 	w2 := f.userRepository.Where("name LIKE ?", "%te%")

@@ -7,16 +7,17 @@ import (
 )
 
 type QueryUnitOfWork interface {
+	// DB chain to query
 	DB() *gorm.DB
+	// Query in case raw sql query map to dest
 	Query(dest interface{}, sql string, values ...interface{})
 }
 type UnitOfWorkReader struct {
-	DbContext Context
-	//Db        *gorm.DB
+	Context
 }
 
 func (uow *UnitOfWorkReader) DB() *gorm.DB {
-	return uow.DbContext.Query()
+	return uow.Context.GetDb()
 }
 
 func (uow *UnitOfWorkReader) Query(dest interface{}, sql string, values ...interface{}) {
@@ -24,18 +25,29 @@ func (uow *UnitOfWorkReader) Query(dest interface{}, sql string, values ...inter
 }
 
 type CommandUnitOfWork interface {
+	GetDb() *gorm.DB
+
 	BeginReadCommitTx() TransactionContext
+	BeginSerializableTx() TransactionContext
 	DoTransaction(func(*TransactionContext) error) error
-	//Transaction(func(*Context) error) error
+
+	SavePoint(name string) base.Either[base.Unit, base.ErrContext]
+	RollbackTo(name string) base.Either[base.Unit, base.ErrContext]
+	Commit() base.Either[base.Unit, base.ErrContext]
+	Rollback() base.Either[base.Unit, base.ErrContext]
 }
 type UnitOfWorkWrite struct {
-	DbContext Context
-	//Db        *gorm.DB
+	Context
 }
 
 func (uow UnitOfWorkWrite) BeginReadCommitTx() TransactionContext {
 	return uow.BeginReadCommitTx()
 }
+
+func (uow UnitOfWorkWrite) BeginSerializableTx() TransactionContext {
+	return uow.BeginSerializableTx()
+}
+
 func (uow UnitOfWorkWrite) DoTransaction(fn func(*TransactionContext) error) error {
 	return uow.DoTransaction(fn)
 }
@@ -46,7 +58,7 @@ func NewQueryUnitOfWork(config *global.Config) base.Either[QueryUnitOfWork, erro
 		return base.LeftEither[QueryUnitOfWork, error](err)
 	}
 	uow := &UnitOfWorkReader{
-		DbContext: dbContext,
+		Context: dbContext,
 	}
 	return base.RightEither[QueryUnitOfWork, error](uow)
 }
@@ -57,38 +69,7 @@ func NewUnitOfWork(config *global.Config) base.Either[CommandUnitOfWork, error] 
 		return base.LeftEither[CommandUnitOfWork, error](err)
 	}
 	uow := UnitOfWorkWrite{
-		DbContext: dbContext,
+		Context: dbContext,
 	}
 	return base.RightEither[CommandUnitOfWork, error](uow)
 }
-
-//
-//func ConnectDb() {
-//	dsn := "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable"
-//	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-//		Logger: logger.Default.LogMode(logger.Error),
-//	})
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	var tx = db.Begin(&sql.TxOptions{
-//		Isolation: sql.LevelReadCommitted,
-//		ReadOnly:  false,
-//	})
-//	tx.SavePoint("SaveUser")
-//	tx.RollbackTo("SaveUser")
-//	tx.Commit()
-//	tx.Rollback()
-//
-//	// transaction
-//
-//	// auto transaction
-//	_ = db.Transaction(func(tx *gorm.DB) error {
-//		tx.SavePoint("SaveUser")
-//		tx.RollbackTo("SaveUser")
-//		return nil
-//	}, &sql.TxOptions{
-//		Isolation: sql.LevelReadCommitted,
-//	})
-//}

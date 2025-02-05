@@ -3,7 +3,7 @@ package repository
 import (
 	"n4a3/clean-architecture/app/base/util"
 	"n4a3/clean-architecture/app/domain/entity"
-	"n4a3/clean-architecture/app/interfaces/db"
+	"n4a3/clean-architecture/app/integrates/db"
 )
 
 type UserRepository interface {
@@ -12,15 +12,16 @@ type UserRepository interface {
 }
 
 type userRepository struct {
+	db.Repository[entity.User]
 	db.ReadOnlyRepository[entity.User]
-	repository *db.ReadOnlyRepository[entity.User]
 }
 
-func NewUserRepository(uow *db.QueryUnitOfWork) UserRepository {
-	repository := db.NewReadOnlyRepository[entity.User](uow)
+func NewUserRepository(rUoW *db.QueryUnitOfWork, uow *db.CommandUnitOfWork) UserRepository {
+	readOnlyRepository := db.NewReadOnlyRepository[entity.User](rUoW)
+	repository := db.NewRepository[entity.User](uow)
 	return &userRepository{
-		repository:         &repository,
-		ReadOnlyRepository: repository,
+		Repository:         repository,
+		ReadOnlyRepository: readOnlyRepository,
 	}
 }
 

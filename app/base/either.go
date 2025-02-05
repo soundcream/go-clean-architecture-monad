@@ -8,6 +8,10 @@ type Either[R, L any] struct {
 type Unit struct {
 }
 
+func NewUnit() *Unit {
+	return &Unit{}
+}
+
 func (e Either[R, L]) IsRight() bool {
 	return e.Right != nil && !e.IsLeft()
 }

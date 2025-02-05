@@ -8,7 +8,7 @@ import (
 	"n4a3/clean-architecture/app/domain/entity"
 )
 
-type ReadOnlyRepository[Entity entity.IBaseEntity] interface {
+type ReadOnlyRepository[Entity entity.Entity] interface {
 	Query() QueryContext[Entity]
 	BuildQueryPagination() QueryContext[Entity]
 
@@ -30,12 +30,12 @@ type ReadOnlyRepository[Entity entity.IBaseEntity] interface {
 	WhereOrderBy(order interface{}, query interface{}, args ...interface{}) []Entity
 }
 
-type readOnlyRepository[Entity entity.IBaseEntity] struct {
+type readOnlyRepository[Entity entity.Entity] struct {
 	UoW       QueryUnitOfWork
 	TableName string
 }
 
-func NewReadOnlyRepository[Entity entity.IBaseEntity](uow *QueryUnitOfWork) ReadOnlyRepository[Entity] {
+func NewReadOnlyRepository[Entity entity.Entity](uow *QueryUnitOfWork) ReadOnlyRepository[Entity] {
 	//tableName := generic.GetFieldTagByName[Entity]("BaseEntity", "table-name")
 	var e = *new(Entity)
 	return &readOnlyRepository[Entity]{

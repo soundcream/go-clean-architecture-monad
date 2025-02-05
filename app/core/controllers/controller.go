@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"n4a3/clean-architecture/app/base"
-	"n4a3/clean-architecture/app/interfaces/dto"
+	"n4a3/clean-architecture/app/integrates/dto"
 )
 
 type Controller interface {

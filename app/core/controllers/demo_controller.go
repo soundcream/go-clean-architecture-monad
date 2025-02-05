@@ -5,8 +5,8 @@ import (
 	"n4a3/clean-architecture/app/base/global"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/facades"
-	"n4a3/clean-architecture/app/interfaces/db"
-	"n4a3/clean-architecture/app/interfaces/repository"
+	"n4a3/clean-architecture/app/integrates/db"
+	"n4a3/clean-architecture/app/integrates/repository"
 )
 
 type DemoController struct {
@@ -16,7 +16,7 @@ type DemoController struct {
 }
 
 func NewDemoController(config *global.Config) *DemoController {
-	repo := repository.NewUserRepository(db.NewQueryUnitOfWork(config).Right)
+	repo := repository.NewUserRepository(db.NewQueryUnitOfWork(config).Right, db.NewUnitOfWork(config).Right)
 	return &DemoController{
 		Config:      config,
 		Facade:      facades.NewDemoFacade(),

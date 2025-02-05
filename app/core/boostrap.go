@@ -18,7 +18,7 @@ import (
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
 	"n4a3/clean-architecture/app/domain"
-	"n4a3/clean-architecture/app/interfaces/dto"
+	"n4a3/clean-architecture/app/integrates/dto"
 	"n4a3/clean-architecture/app/validators"
 	"os"
 	"time"
@@ -220,7 +220,7 @@ func CustomHandler(ctx *fiber.Ctx) error {
 }
 
 func UnauthorizedHandler(ctx *fiber.Ctx, err error) error {
-	return ctx.Status(fiber.StatusUnauthorized).JSON(dto.ErrorContextResponse(base.NewErrorWithCode(base.Unauthorized)))
+	return ctx.Status(fiber.StatusUnauthorized).JSON(dto.ErrorContextResponse(base.NewErrorCode(base.Unauthorized)))
 }
 
 func useFavicon(a *AppContext) {

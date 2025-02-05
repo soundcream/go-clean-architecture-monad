@@ -31,7 +31,20 @@ func (e *ErrContext) AppendExt(err *ErrContext) *ErrContext {
 	return e
 }
 
-func NewErrorWithCode(errorCode ErrorCode) ErrContext {
+func NewIfError(err error) *ErrContext {
+	if err == nil {
+		return nil
+	}
+	return &ErrContext{
+		Code:     UnHandleError,
+		HttpCode: UnHandleError.GetHttpCode(),
+		Msg:      UnHandleError.GetDefaultErrorMsg(),
+		Cause:    getCause(err),
+		error:    err,
+	}
+}
+
+func NewErrorCode(errorCode ErrorCode) ErrContext {
 	return ErrContext{
 		Code:     errorCode,
 		HttpCode: errorCode.GetHttpCode(),
@@ -39,23 +52,23 @@ func NewErrorWithCode(errorCode ErrorCode) ErrContext {
 	}
 }
 
-func NewInvalidateErrorWithMsg(field string, code FieldInvalidCode, msg string) *ErrContext {
-	errorCode := Invalidate
-	ext := ErrExt{
-		Code:  int(code),
-		Field: field,
-		Msg:   msg,
-	}
-	return &ErrContext{
-		Extensions: &([]ErrExt{ext}),
-		Code:       errorCode,
-		HttpCode:   errorCode.GetHttpCode(),
-		Msg:        errorCode.GetDefaultErrorMsg(),
+func NewErrorWithCode(errorCode ErrorCode, err error) ErrContext {
+	return ErrContext{
+		Code:     errorCode,
+		HttpCode: errorCode.GetHttpCode(),
+		Msg:      errorCode.GetDefaultErrorMsg(),
+		Cause:    getCause(err),
+		error:    err,
 	}
 }
 
-func NewInvalidateError(field string, code FieldInvalidCode) *ErrContext {
-	return NewInvalidateErrorWithMsg(field, code, code.GetErrorMsg())
+func NewErrorWithMsg(errorCode ErrorCode, msg string, err error) ErrContext {
+	return ErrContext{
+		Code:     errorCode,
+		HttpCode: errorCode.GetHttpCode(),
+		Msg:      msg,
+		Cause:    getCause(err),
+		error:    err}
 }
 
 func NewInvalidateExtError(ext []ErrExt) ErrContext {
@@ -66,24 +79,6 @@ func NewInvalidateExtError(ext []ErrExt) ErrContext {
 		HttpCode:   errorCode.GetHttpCode(),
 		Msg:        errorCode.GetDefaultErrorMsg(),
 	}
-}
-
-func NewError(errorCode ErrorCode, err error) ErrContext {
-	return ErrContext{
-		Code:     errorCode,
-		HttpCode: errorCode.GetHttpCode(),
-		Msg:      errorCode.GetDefaultErrorMsg(),
-		Cause:    getCause(err),
-		error:    err}
-}
-
-func NewErrorWithMsg(errorCode ErrorCode, msg string, err error) ErrContext {
-	return ErrContext{
-		Code:     errorCode,
-		HttpCode: errorCode.GetHttpCode(),
-		Msg:      msg,
-		Cause:    getCause(err),
-		error:    err}
 }
 
 func NewErrContextFromInvalidateField(invalidates []global.InvalidateField) *ErrContext {
@@ -99,6 +94,25 @@ func NewErrContextFromInvalidateField(invalidates []global.InvalidateField) *Err
 			}
 		}))
 	return &result
+}
+
+func NewInvalidateError(field string, code FieldInvalidCode) *ErrContext {
+	return NewInvalidateErrorWithMsg(field, code, code.GetErrorMsg())
+}
+
+func NewInvalidateErrorWithMsg(field string, code FieldInvalidCode, msg string) *ErrContext {
+	errorCode := Invalidate
+	ext := ErrExt{
+		Code:  int(code),
+		Field: field,
+		Msg:   msg,
+	}
+	return &ErrContext{
+		Extensions: &([]ErrExt{ext}),
+		Code:       errorCode,
+		HttpCode:   errorCode.GetHttpCode(),
+		Msg:        errorCode.GetDefaultErrorMsg(),
+	}
 }
 
 func getCause(err error) *string {
