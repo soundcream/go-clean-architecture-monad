@@ -36,6 +36,7 @@ func NewRepository[Entity entity.Entity](uow *CommandUnitOfWork) Repository[Enti
 }
 
 func (repo *repository[Entity]) Insert(entity *Entity) base.Either[int64, base.ErrContext] {
+
 	result := repo.uow.GetDb().Create(entity)
 	return base.NewEither(&result.RowsAffected, base.NewIfError(result.Error))
 }

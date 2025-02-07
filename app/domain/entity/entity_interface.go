@@ -1,8 +1,9 @@
 package entity
 
 type Entity interface {
-	GetId() int
 	TableName() string
+	//GetId() int
+	Base() *BaseEntity
 	//SetUpdater(user string)
 	//SetInserter(user string)
 }

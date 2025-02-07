@@ -9,7 +9,7 @@ import (
 
 type UserFacade interface {
 	CreateUser(name, email string) (*entity.User, error)
-	GetUserById(id int) ([]entity.User, error)
+	GetUserById(id int) (*entity.User, error)
 	ListUsers() ([]entity.User, error)
 	TestThen() *entity.Txn
 	TestValidate(u *entity.User) *base.ErrContext
@@ -34,8 +34,9 @@ func (f *userFacade) ListUsers() ([]entity.User, error) {
 	}, nil
 }
 
-func (f *userFacade) GetUserById(id int) ([]entity.User, error) {
-	return []entity.User{}, nil
+func (f *userFacade) GetUserById(id int) (*entity.User, error) {
+	u := f.repo.FindById(id)
+	return u, nil
 }
 
 func (f *userFacade) RemoveUserById(id int) base.Either[entity.User, error] {
@@ -56,7 +57,7 @@ func newTx() base.Either[entity.Txn, error] {
 }
 
 func setUser(tx entity.Txn) base.Either[entity.Txn, error] {
-	tx.User = entity.User{Name: "Arm"}
+	tx.User = entity.User{}
 	return base.RightEither[entity.Txn, error](tx)
 }
 

@@ -13,7 +13,7 @@ type BaseEntity struct {
 	UpdatedDate time.Time `column:"updated_date" json:"updatedDate" example:"2020-01-01"`
 }
 
-func (e BaseEntity) GetId() int {
+func (e *BaseEntity) GetId() int {
 	return e.Id
 }
 
@@ -25,6 +25,10 @@ func (e *BaseEntity) SetInserter(user string) {
 func (e *BaseEntity) SetUpdater(user string) {
 	e.UpdatedDate = time.Now()
 	e.UpdatedBy = &user
+}
+
+func (e *BaseEntity) Base() *BaseEntity {
+	return e
 }
 
 type SoftDeleteEntity struct {

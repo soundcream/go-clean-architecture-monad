@@ -4,7 +4,7 @@ package entity
 // @Description A representation of a user.
 // @ID User
 type User struct {
-	BaseEntity
+	*BaseEntity
 	Name        string     `column:"name" json:"name" example:"John Doe"`
 	Username    string     `column:"username" json:"username" example:"JohnDoe"`
 	Email       string     `column:"email" json:"email" example:"john.doe@example.com"`
@@ -15,10 +15,6 @@ type User struct {
 
 func (User) TableName() string {
 	return "users"
-}
-
-type UserTx struct {
-	BaseEntity
 }
 
 type UserTest struct {

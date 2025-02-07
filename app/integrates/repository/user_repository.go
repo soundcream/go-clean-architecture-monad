@@ -7,6 +7,7 @@ import (
 )
 
 type UserRepository interface {
+	db.Repository[entity.User]
 	db.ReadOnlyRepository[entity.User]
 	GetSpecialLogicUser(id int) *entity.User
 }

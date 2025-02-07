@@ -19,42 +19,24 @@ func NewQueryFacade(repo repository.UserRepository) QueryFacade {
 }
 
 func (f QueryFacade) GetUser() base.Either[entity.User, base.ErrContext] {
-
-	user := f.userRepository.GetSpecialLogicUser(1)
-
-	user.SetUpdater("abc")
-	user.SetInserter("abc")
-	user2 := f.userRepository.FindById(1)
-	up2 := f.userRepository.Count("point > ?", 1)
-	w2 := f.userRepository.Where("name LIKE ?", "%te%")
-
-	ug1 := f.userRepository.FindByIdPreloadInclude(3, entity.User{}.UserGroup, "is_active = ?", true)
-	ug := f.userRepository.FindByIdPreload(3, util.Map("UserGroup"))
-	fud := f.userRepository.FindByIdPreload(3, util.Map("UserGroup", "is_active = ?", true))
-	//ug := f.userRepo.FindByIdLoad(3)
-
-	// Use
-	r0 := f.userRepository.Query().Where("point > 1").Order("point desc").FetchAll()
-	r1 := f.userRepository.Query().Where("point > ?", 1).Order("point desc").FetchAll()
-	r2 := f.userRepository.Query().Where("point > ?", 1).Order("point desc").Fetch()
-	r3 := f.userRepository.Query().
+	user01 := f.userRepository.FindById(1)
+	user01.SetUpdater("abc")
+	count01 := f.userRepository.Count("point > ?", 1)
+	user02 := f.userRepository.Where("name LIKE ?", "%te%")
+	user03 := f.userRepository.FindByIdPreloadInclude(3, entity.User{}.UserGroup, "is_active = ?", true)
+	user04 := f.userRepository.FindByIdPreload(3, util.Map("UserGroup", "is_active = ?", true))
+	// Query
+	user05 := f.userRepository.Query().
 		Preload("UserGroup").
 		Where("point > ?", 1).
 		Order("point desc").
 		FetchAll()
-
-	p1 := f.userRepository.BuildQueryPagination().
-		PreloadWith(entity.User{}.UserGroup).
-		Where("point > ?", 1).
-		Order("point desc").
-		ToPaging(1, 0)
-
-	p2 := f.userRepository.BuildQueryPagination().
+	// Paging
+	user06 := f.userRepository.BuildQueryPagination().
 		PreloadWith(entity.User{}.UserGroup, "is_active = ?", true).
 		Where("point > ?", 1).
 		Order("point desc").
 		ToPaging(1, 0)
-
-	fmt.Println(user2, up2, w2, ug, fud, r1, r2, r3, r0, ug1, p1, p2)
-	return base.RightEither[entity.User, base.ErrContext](*user)
+	fmt.Println(user01, user02, user03, user04, user05, user06, count01)
+	return base.NewRightEither[entity.User, base.ErrContext](user01)
 }

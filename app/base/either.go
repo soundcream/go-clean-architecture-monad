@@ -71,6 +71,10 @@ func NewEither[R any, L any](right *R, left *L) Either[R, L] {
 	return Either[R, L]{Right: right, Left: left}
 }
 
+func NewRightEither[R, L any](right *R) Either[R, L] {
+	return Either[R, L]{Right: right}
+}
+
 func LeftEither[R, L any](left L) Either[R, L] {
 	return Either[R, L]{Left: &left}
 }
