@@ -31,6 +31,16 @@ func (e *BaseEntity) Base() *BaseEntity {
 	return e
 }
 
+func NewBase() *BaseEntity {
+	return &BaseEntity{}
+}
+
+func NewBaseWithId(id int) *BaseEntity {
+	return &BaseEntity{
+		Id: id,
+	}
+}
+
 type SoftDeleteEntity struct {
 	IsDelete       bool       `column:"is_delete" json:"isDelete"`
 	DeletedDate    *time.Time `column:"deleted_date" json:"deletedDate" example:"2020-01-01"`

@@ -26,10 +26,8 @@ func TestGetUserByID(t *testing.T) {
 	userRepo := new(MockUserRepository)
 	userRepo.ReadOnlyRepository = repo
 	repo.On("FindById", 1).Return(&entity.User{
-		BaseEntity: &entity.BaseEntity{
-			Id: 2,
-		},
-		Name: "John"})
+		BaseEntity: entity.NewBaseWithId(3),
+		Name:       "John"})
 
 	facade := facades.NewUserFacade(userRepo)
 	u, err := facade.GetUserById(1)
