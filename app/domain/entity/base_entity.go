@@ -6,11 +6,11 @@ import (
 )
 
 type BaseEntity struct {
-	Id          int       `gorm:"primaryKey" column:"id" json:"id"`
-	CreatedBy   string    `column:"created_by" len:"50" json:"createdBy" example:"system"`
-	UpdatedBy   *string   `column:"updated_by" len:"50" json:"updatedBy" example:"admin_a"`
-	CreatedDate time.Time `column:"created_date" json:"createdDate" example:"2020-01-01"`
-	UpdatedDate time.Time `column:"updated_date" json:"updatedDate" example:"2020-01-01"`
+	Id          int        `gorm:"primaryKey" column:"id" json:"id"`
+	CreatedBy   string     `column:"created_by" len:"50" json:"createdBy" example:"system"`
+	UpdatedBy   *string    `column:"updated_by" len:"50" json:"updatedBy" example:"admin_a"`
+	CreatedDate time.Time  `column:"created_date" json:"createdDate" example:"2020-01-01"`
+	UpdatedDate *time.Time `column:"updated_date" json:"updatedDate" example:"2020-01-01"`
 }
 
 func (e *BaseEntity) GetId() int {
@@ -18,12 +18,14 @@ func (e *BaseEntity) GetId() int {
 }
 
 func (e *BaseEntity) SetInserter(user string) {
-	e.CreatedDate = time.Now()
-	e.CreatedBy = user
+	if e != nil {
+		e.CreatedDate = datetimeutil.Now()
+		e.CreatedBy = user
+	}
 }
 
 func (e *BaseEntity) SetUpdater(user string) {
-	e.UpdatedDate = time.Now()
+	e.UpdatedDate = datetimeutil.NowPtr()
 	e.UpdatedBy = &user
 }
 

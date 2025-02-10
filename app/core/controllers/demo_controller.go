@@ -10,17 +10,19 @@ import (
 )
 
 type DemoController struct {
-	Config      *global.Config
-	Facade      facades.DemoFacade
-	QueryFacade facades.QueryFacade
+	Config        *global.Config
+	Facade        facades.DemoFacade
+	QueryFacade   facades.QueryFacade
+	CommandFacade facades.CommandFacade
 }
 
 func NewDemoController(config *global.Config) *DemoController {
 	repo := repository.NewUserRepository(db.NewQueryUnitOfWork(config).Right, db.NewUnitOfWork(config).Right)
 	return &DemoController{
-		Config:      config,
-		Facade:      facades.NewDemoFacade(),
-		QueryFacade: facades.NewQueryFacade(repo),
+		Config:        config,
+		Facade:        facades.NewDemoFacade(),
+		QueryFacade:   facades.NewQueryFacade(repo),
+		CommandFacade: facades.NewCommandFacade(repo),
 	}
 }
 
@@ -30,6 +32,9 @@ func (con *DemoController) MapRoute(route fiber.Router) {
 	})
 	route.Get("/user", func(c *fiber.Ctx) error {
 		return con.GetUser(c)
+	})
+	route.Post("/insert", func(c *fiber.Ctx) error {
+		return con.Insert(c)
 	})
 }
 
@@ -57,6 +62,21 @@ func (con *DemoController) TestValidate(c *fiber.Ctx) error {
 // @Router /api/demo/user [get]
 func (con *DemoController) GetUser(c *fiber.Ctx) error {
 	result := con.QueryFacade.GetUser()
+	if result.IsRight() {
+		return OkResult(c, result.Right)
+	}
+	return ErrorResult(c, result.Left)
+}
+
+// Insert @Summary Example Insert
+// @Description
+// @Tags Demo
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} entity.User
+// @Router /api/demo/insert [post]
+func (con *DemoController) Insert(c *fiber.Ctx) error {
+	result := con.CommandFacade.Insert()
 	if result.IsRight() {
 		return OkResult(c, result.Right)
 	}
