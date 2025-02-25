@@ -50,6 +50,40 @@ func (c commandFacade) Insert() base.Either[base.Unit, base.ErrContext] {
 	//c.userRepository.UpdateWhere()
 }
 
+func (c commandFacade) Update() base.Either[base.Unit, base.ErrContext] {
+
+	u := entity.User{
+		BaseEntity:  entity.NewBase(),
+		Name:        "aaa",
+		Username:    "user_aa",
+		Email:       "user_aa@email",
+		Point:       nil,
+		UserGroupId: nil,
+		UserGroup:   nil,
+	}
+	u.SetInserter("system")
+	res := c.userRepository.Insert(&u)
+	return either.Map[int64, base.Unit, base.ErrContext](res, toUnit)
+}
+
+func (c commandFacade) Delete() base.Either[base.Unit, base.ErrContext] {
+
+	u := entity.User{
+		BaseEntity:  entity.NewBase(),
+		Name:        "aaa",
+		Username:    "user_aa",
+		Email:       "user_aa@email",
+		Point:       nil,
+		UserGroupId: nil,
+		UserGroup:   nil,
+	}
+	u.SetInserter("system")
+	res := c.userRepository.Insert(&u)
+	return either.Map[int64, base.Unit, base.ErrContext](res, toUnit)
+}
+
+//MapValue
+
 func toUnit(err *base.ErrContext, input *int64) base.Either[base.Unit, base.ErrContext] {
 	if err != nil {
 		return base.LeftEither[base.Unit, base.ErrContext](*err)
