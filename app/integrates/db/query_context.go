@@ -2,6 +2,8 @@ package db
 
 import (
 	"gorm.io/gorm"
+	"math"
+	_ "math"
 	"n4a3/clean-architecture/app/base/global"
 	"n4a3/clean-architecture/app/base/util"
 	stringutil "n4a3/clean-architecture/app/base/util/string"
@@ -70,9 +72,14 @@ func (q *queryContext[Entity]) ToPaging(limit int, offset int) global.PagingMode
 	q.db.Count(&c)
 	q.db.Limit(limit).Offset(offset).Find(&result)
 	total = int(c)
+	//totalPages := int(math.Ceil((float64(total) * 1.0) / float64(limit)))
+	page := int(math.Ceil((float64(offset)*1.0)/float64(limit)) + 1)
 	return global.PagingModel[Entity]{
-		Data:  result,
-		Total: total,
+		Data:   result,
+		Total:  total,
+		Limit:  limit,
+		Offset: offset,
+		Page:   page,
 	}
 }
 

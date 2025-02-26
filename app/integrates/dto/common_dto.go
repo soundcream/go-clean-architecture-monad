@@ -8,7 +8,7 @@ import (
 type Response[T any] struct {
 	Data    *T
 	Success bool
-	Error   global.ErrorHandlerResp
+	Error   *global.ErrorHandlerResp
 }
 
 func SuccessResponse[T any](data T) Response[T] {
@@ -21,14 +21,14 @@ func SuccessResponse[T any](data T) Response[T] {
 func ErrorResponse(error global.ErrorHandlerResp) Response[string] {
 	return Response[string]{
 		Success: false,
-		Error:   error,
+		Error:   &error,
 	}
 }
 
 func ErrorContextResponse(error base.ErrContext) Response[string] {
 	return Response[string]{
 		Success: false,
-		Error: global.ErrorHandlerResp{
+		Error: &global.ErrorHandlerResp{
 			Code:    int(error.Code),
 			Message: error.Code.GetDefaultErrorMsg(),
 			Ext:     error.Extensions,
@@ -39,7 +39,7 @@ func ErrorContextResponse(error base.ErrContext) Response[string] {
 func ErrorUnHandlerResponse() Response[string] {
 	return Response[string]{
 		Success: false,
-		Error: global.ErrorHandlerResp{
+		Error: &global.ErrorHandlerResp{
 			Code:    int(base.UnHandleError),
 			Message: base.UnHandleError.GetDefaultErrorMsg(),
 		},

@@ -251,10 +251,18 @@ func NewApp() AppContext {
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			log.Errorf("%+v", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse(global.ErrorHandlerResp{
-				Code:    int(base.UnHandleError),
-				Message: base.UnHandleError.GetDefaultErrorMsg(),
-			}))
+			//c.OriginalURL()
+			if fex, ok := err.(*fiber.Error); ok && fex.Code != 500 {
+				return c.Status(fex.Code).JSON(dto.ErrorResponse(global.ErrorHandlerResp{
+					Code:    fex.Code,
+					Message: fex.Message,
+				}))
+			} else {
+				return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse(global.ErrorHandlerResp{
+					Code:    int(base.UnHandleError),
+					Message: base.UnHandleError.GetDefaultErrorMsg(),
+				}))
+			}
 		},
 	})
 	return AppContext{

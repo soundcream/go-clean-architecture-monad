@@ -32,10 +32,19 @@ func (con *DemoController) MapRoute(route fiber.Router) {
 		return con.TestValidate(c)
 	})
 	route.Get("/user", func(c *fiber.Ctx) error {
-		return con.GetUser(c)
+		return con.GetUserById(c)
+	})
+	route.Get("/users", func(c *fiber.Ctx) error {
+		return con.SearchUsers(c)
 	})
 	route.Post("/insert", func(c *fiber.Ctx) error {
 		return con.Insert(c)
+	})
+	route.Put("/update", func(c *fiber.Ctx) error {
+		return con.Update(c)
+	})
+	route.Delete("/delete", func(c *fiber.Ctx) error {
+		return con.Delete(c)
 	})
 	route.Post("/mapper", func(c *fiber.Ctx) error {
 		return con.TestMap(c)
@@ -81,8 +90,20 @@ func (con *DemoController) TestMap(c *fiber.Ctx) error {
 // @Produce  json
 // @Success 200 {object} entity.User
 // @Router /api/demo/user [get]
-func (con *DemoController) GetUser(c *fiber.Ctx) error {
+func (con *DemoController) GetUserById(c *fiber.Ctx) error {
 	result := con.QueryFacade.GetUser()
+	if result.IsRight() {
+		return OkResult(c, result.Right)
+	}
+	return ErrorResult(c, result.Left)
+}
+
+// SearchUsers @Summary Example SearchUsers
+func (con *DemoController) SearchUsers(c *fiber.Ctx) error {
+	result := con.QueryFacade.SearchUsers(
+		c.Query("keyword", ""),
+		c.QueryInt("limit", 10),
+		c.QueryInt("offset", 0))
 	if result.IsRight() {
 		return OkResult(c, result.Right)
 	}
@@ -112,7 +133,7 @@ func (con *DemoController) Insert(c *fiber.Ctx) error {
 // @Success 200 {object} entity.User
 // @Router /api/demo/insert [post]
 func (con *DemoController) Update(c *fiber.Ctx) error {
-	result := con.CommandFacade.Insert()
+	result := con.CommandFacade.Update()
 	if result.IsRight() {
 		return OkResult(c, result.Right)
 	}
@@ -127,7 +148,7 @@ func (con *DemoController) Update(c *fiber.Ctx) error {
 // @Success 200 {object} entity.User
 // @Router /api/demo/insert [post]
 func (con *DemoController) Delete(c *fiber.Ctx) error {
-	result := con.CommandFacade.Insert()
+	result := con.CommandFacade.Delete()
 	if result.IsRight() {
 		return OkResult(c, result.Right)
 	}

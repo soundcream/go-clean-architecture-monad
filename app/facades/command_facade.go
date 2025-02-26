@@ -9,6 +9,8 @@ import (
 
 type CommandFacade interface {
 	Insert() base.Either[base.Unit, base.ErrContext]
+	Update() base.Either[base.Unit, base.ErrContext]
+	Delete() base.Either[base.Unit, base.ErrContext]
 }
 
 type commandFacade struct {

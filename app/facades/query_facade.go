@@ -3,6 +3,7 @@ package facades
 import (
 	"fmt"
 	"n4a3/clean-architecture/app/base"
+	"n4a3/clean-architecture/app/base/global"
 	"n4a3/clean-architecture/app/base/util"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/integrates/repository"
@@ -39,4 +40,18 @@ func (f QueryFacade) GetUser() base.Either[entity.User, base.ErrContext] {
 		ToPaging(1, 0)
 	fmt.Println(user01, user02, user03, user04, user05, user06, count01)
 	return base.NewRightEither[entity.User, base.ErrContext](user01)
+}
+
+func (f QueryFacade) GetUserById(id int) base.Either[entity.User, base.ErrContext] {
+	result := f.userRepository.FindById(id)
+	return base.NewRightEither[entity.User, base.ErrContext](result)
+}
+
+func (f QueryFacade) SearchUsers(keyword string, limit, offset int) base.Either[global.PagingModel[entity.User], base.ErrContext] {
+	result := f.userRepository.BuildQueryPagination().
+		PreloadWith(entity.User{}.UserGroup, "is_active = ?", true).
+		Where("name LIKE ?", fmt.Sprintf("%%%s%%", keyword)).
+		Order("point desc").
+		ToPaging(limit, offset)
+	return base.NewRightEither[global.PagingModel[entity.User], base.ErrContext](&result)
 }
