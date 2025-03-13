@@ -19,14 +19,32 @@ func (e *BaseEntity) GetId() int {
 
 func (e *BaseEntity) SetInserter(user string) {
 	if e != nil {
-		e.CreatedDate = datetimeutil.Now()
+		now := datetimeutil.Now()
+		e.CreatedDate = now
 		e.CreatedBy = user
 	}
 }
 
 func (e *BaseEntity) SetUpdater(user string) {
-	e.UpdatedDate = datetimeutil.NowPtr()
-	e.UpdatedBy = &user
+	if e != nil {
+		e.UpdatedDate = datetimeutil.NowPtr()
+		e.UpdatedBy = &user
+	}
+}
+
+//func (e *BaseEntity) NewBaseUpdateWithId(id int, user string) {
+//	e = BaseEntity{
+//		Id:          id,
+//		UpdatedDate: datetimeutil.NowPtr(),
+//		UpdatedBy:   &user,
+//	}
+//}
+
+func (e *BaseEntity) SetId(id int) {
+	if e == nil {
+		e = NewBase()
+	}
+	e.Id = id
 }
 
 func (e *BaseEntity) Base() *BaseEntity {
@@ -40,6 +58,14 @@ func NewBase() *BaseEntity {
 func NewBaseWithId(id int) *BaseEntity {
 	return &BaseEntity{
 		Id: id,
+	}
+}
+
+func NewBaseUpdateWithId(id int, user string) *BaseEntity {
+	return &BaseEntity{
+		Id:          id,
+		UpdatedDate: datetimeutil.NowPtr(),
+		UpdatedBy:   &user,
 	}
 }
 

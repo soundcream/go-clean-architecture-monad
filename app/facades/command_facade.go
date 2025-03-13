@@ -3,13 +3,16 @@ package facades
 import (
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/either"
+	"n4a3/clean-architecture/app/base/util"
 	"n4a3/clean-architecture/app/domain/entity"
+	"n4a3/clean-architecture/app/integrates/dto"
 	"n4a3/clean-architecture/app/integrates/repository"
 )
 
 type CommandFacade interface {
-	Insert() base.Either[base.Unit, base.ErrContext]
-	Update() base.Either[base.Unit, base.ErrContext]
+	Insert(user dto.UserDto) base.Either[dto.UserDto, base.ErrContext]
+	Update(user dto.CommandDto[dto.UserDto]) base.Either[dto.CommandDto[dto.UserDto], base.ErrContext]
+	UpdateTest() base.Either[base.Unit, base.ErrContext]
 	Delete() base.Either[base.Unit, base.ErrContext]
 }
 
@@ -23,21 +26,20 @@ func NewCommandFacade(repo repository.UserRepository) CommandFacade {
 	}
 }
 
-func (c commandFacade) Insert() base.Either[base.Unit, base.ErrContext] {
+func (c commandFacade) Insert(user dto.UserDto) base.Either[dto.UserDto, base.ErrContext] {
 
 	u := entity.User{
 		BaseEntity:  entity.NewBase(),
-		Name:        "aaa",
-		Username:    "user_aa",
-		Email:       "user_aa@email",
-		Point:       nil,
-		UserGroupId: nil,
+		Name:        user.Name,
+		Username:    user.Username,
+		Email:       user.Email,
+		Point:       user.Point,
+		UserGroupId: user.UserGroupId,
 		UserGroup:   nil,
 	}
 	u.SetInserter("system")
 	res := c.userRepository.Insert(&u)
-	return either.Map[int64, base.Unit, base.ErrContext](res, toUnit)
-
+	return MapToResult[dto.UserDto](res, user)
 	//users := []entity.User{
 	//	entity.User{},
 	//	entity.User{},
@@ -52,7 +54,15 @@ func (c commandFacade) Insert() base.Either[base.Unit, base.ErrContext] {
 	//c.userRepository.UpdateWhere()
 }
 
-func (c commandFacade) Update() base.Either[base.Unit, base.ErrContext] {
+func (c commandFacade) Update(user dto.CommandDto[dto.UserDto]) base.Either[dto.CommandDto[dto.UserDto], base.ErrContext] {
+	u := util.MapFrom[entity.User](user.Model)
+	u.BaseEntity = entity.NewBaseUpdateWithId(user.Id, "system_update")
+	//res := c.userRepository.Update(user.Id, *u)
+	res := c.userRepository.UpdateAll(u)
+	return MapToResult[dto.CommandDto[dto.UserDto]](res, user)
+}
+
+func (c commandFacade) UpdateTest() base.Either[base.Unit, base.ErrContext] {
 
 	u := entity.User{
 		BaseEntity:  entity.NewBase(),
@@ -84,11 +94,20 @@ func (c commandFacade) Delete() base.Either[base.Unit, base.ErrContext] {
 	return either.Map[int64, base.Unit, base.ErrContext](res, toUnit)
 }
 
-//MapValue
-
 func toUnit(err *base.ErrContext, input *int64) base.Either[base.Unit, base.ErrContext] {
 	if err != nil {
 		return base.LeftEither[base.Unit, base.ErrContext](*err)
+	} else if input != nil && *input <= 0 {
+		return base.LeftEither[base.Unit, base.ErrContext](base.NewErrorCode(base.Invalid))
 	}
 	return base.RightEither[base.Unit, base.ErrContext](base.Unit{})
+}
+
+func MapToResult[T any](commandResult base.Either[int64, base.ErrContext], result T) base.Either[T, base.ErrContext] {
+	if commandResult.IsRight() {
+		return base.RightEither[T, base.ErrContext](result)
+	} else if commandResult.IsLeft() {
+		return base.LeftEither[T, base.ErrContext](*commandResult.Left)
+	}
+	return base.LeftEither[T, base.ErrContext](base.NewErrorCode(base.Invalid))
 }

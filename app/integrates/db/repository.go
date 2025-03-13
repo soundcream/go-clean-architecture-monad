@@ -15,9 +15,9 @@ type Repository[Entity entity.Entity] interface {
 	// DeleteById delete entity by id
 	DeleteById(id int) base.Either[int64, base.ErrContext]
 	// Update update all entity
-	Update(entity *Entity) base.Either[int64, base.ErrContext]
+	UpdateAll(entity *Entity) base.Either[int64, base.ErrContext]
 	// Updates Update attributes with `struct`, will only update non-zero fields
-	Updates(entity Entity) base.Either[int64, base.ErrContext]
+	Update(id int, entity Entity) base.Either[int64, base.ErrContext]
 	// UpdateWhere update 1 field where condition
 	UpdateWhere(column string, value interface{}, query interface{}, args ...interface{}) base.Either[int64, base.ErrContext]
 }
@@ -57,14 +57,15 @@ func (repo *repository[Entity]) DeleteById(id int) base.Either[int64, base.ErrCo
 	return base.NewEither(&result.RowsAffected, base.NewIfError(result.Error))
 }
 
-func (repo *repository[Entity]) Update(entity *Entity) base.Either[int64, base.ErrContext] {
+func (repo *repository[Entity]) UpdateAll(entity *Entity) base.Either[int64, base.ErrContext] {
 	result := repo.uow.GetDb().Save(entity)
 	return base.NewEither(&result.RowsAffected, base.NewIfError(result.Error))
 }
 
-func (repo *repository[Entity]) Updates(entity Entity) base.Either[int64, base.ErrContext] {
-	var e Entity
-	result := repo.uow.GetDb().Model(&e).Updates(entity)
+func (repo *repository[Entity]) Update(id int, entity Entity) base.Either[int64, base.ErrContext] {
+	var e = new(Entity)
+
+	result := repo.uow.GetDb().Model(&e).Where("id = ?", id).Updates(entity)
 	return base.NewEither(&result.RowsAffected, base.NewIfError(result.Error))
 }
 

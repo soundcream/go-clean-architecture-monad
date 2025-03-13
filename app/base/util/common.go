@@ -28,6 +28,13 @@ func Map(k string, in ...interface{}) *map[string][]interface{} {
 	}
 }
 
+// MapFrom  Auto mapper source to dest
+func MapFrom[T any](source interface{}) *T {
+	var result = new(T)
+	MapValueOf(reflect.ValueOf(source), reflect.ValueOf(&result))
+	return result
+}
+
 // MapValue Auto mapper source to dest
 func MapValue[T any, S any](source *T, dest *S) {
 	MapValueOf(reflect.ValueOf(source), reflect.ValueOf(dest))
@@ -41,18 +48,28 @@ func MapValueOf(source reflect.Value, dest reflect.Value) {
 	if dest.Kind() == reflect.Ptr {
 		dest = dest.Elem()
 	}
-	for i := 0; i < dest.NumField(); i++ {
-		fieldType := dest.Type().Field(i)
-		field := dest.Field(i)
-		if fieldValue := source.FieldByName(fieldType.Name); true {
-			val := getValue(fieldValue)
-			fieldSet := getField(field, fieldValue)
-			if fieldSet.Kind() == reflect.Struct {
-				if fieldSet.Type().Name() == val.Type().Name() && fieldSet.CanSet() {
+	if dest.Kind() == reflect.Ptr {
+		dest = dest.Elem()
+	}
+	if dest.Kind() != reflect.Ptr {
+		for i := 0; i < dest.NumField(); i++ {
+			fieldType := dest.Type().Field(i)
+			field := dest.Field(i)
+			if fieldValue := source.FieldByName(fieldType.Name); true {
+				val := getValue(fieldValue)
+				fieldSet := getField(field, fieldValue)
+				if fieldSet.Kind() == reflect.Struct {
+					if fieldSet.Type().Name() == val.Type().Name() && fieldSet.CanSet() {
+						fieldSet.Set(reflect.ValueOf(val.Interface()))
+					}
+				} else if fieldSet.CanSet() {
 					fieldSet.Set(reflect.ValueOf(val.Interface()))
+				} else if field.Kind() == reflect.Ptr && fieldSet.Kind() == reflect.Pointer {
+					//else if field.Kind() == reflect.Ptr && field.CanSet() && field.IsNil() && field.Elem().Kind() != reflect.Invalid {
+					field.Set(reflect.New(field.Type().Elem()))
+					//field.Elem().Set(reflect.ValueOf(val.Interface()))
+					field.Set(reflect.ValueOf(val.Interface()))
 				}
-			} else if fieldSet.CanSet() {
-				fieldSet.Set(reflect.ValueOf(val.Interface()))
 			}
 		}
 	}
@@ -69,7 +86,7 @@ func getValue(fieldValue reflect.Value) reflect.Value {
 func getField(field reflect.Value, fieldValue reflect.Value) reflect.Value {
 	fieldSet := field
 	if field.CanSet() && field.Kind() == reflect.Ptr {
-		if field.IsNil() && !fieldValue.IsNil() {
+		if !field.IsNil() && !fieldValue.IsNil() {
 			field.Set(reflect.New(field.Type().Elem()))
 		}
 		fieldSet = field.Elem()

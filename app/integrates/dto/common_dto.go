@@ -46,6 +46,11 @@ func ErrorUnHandlerResponse() Response[string] {
 	}
 }
 
+type CommandDto[T any] struct {
+	Id    int `json:"id" example:"1"`
+	Model *T  `json:"model"`
+}
+
 type PagingDto struct {
 	Limit  int `json:"limit"`
 	Offset int `json:"offset"`

@@ -7,6 +7,7 @@ import (
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/facades"
 	"n4a3/clean-architecture/app/integrates/db"
+	"n4a3/clean-architecture/app/integrates/dto"
 	"n4a3/clean-architecture/app/integrates/repository"
 )
 
@@ -40,7 +41,7 @@ func (con *DemoController) MapRoute(route fiber.Router) {
 	route.Post("/insert", func(c *fiber.Ctx) error {
 		return con.Insert(c)
 	})
-	route.Put("/update", func(c *fiber.Ctx) error {
+	route.Put("/:id/update", func(c *fiber.Ctx) error {
 		return con.Update(c)
 	})
 	route.Delete("/delete", func(c *fiber.Ctx) error {
@@ -68,10 +69,11 @@ func (con *DemoController) TestValidate(c *fiber.Ctx) error {
 
 func (con *DemoController) TestMap(c *fiber.Ctx) error {
 	result := con.QueryFacade.GetUser()
+	userCreate := "Z"
 	var u1 = entity.User{
 		BaseEntity: &entity.BaseEntity{
 			Id:        10,
-			CreatedBy: "Z",
+			CreatedBy: userCreate,
 		},
 		Name: "A",
 	}
@@ -83,7 +85,7 @@ func (con *DemoController) TestMap(c *fiber.Ctx) error {
 	return ErrorResult(c, result.Left)
 }
 
-// GetUser @Summary Example GetUser
+// GetUserById @Summary Example GetUser
 // @Description
 // @Tags Demo
 // @Accept  json
@@ -92,10 +94,7 @@ func (con *DemoController) TestMap(c *fiber.Ctx) error {
 // @Router /api/demo/user [get]
 func (con *DemoController) GetUserById(c *fiber.Ctx) error {
 	result := con.QueryFacade.GetUser()
-	if result.IsRight() {
-		return OkResult(c, result.Right)
-	}
-	return ErrorResult(c, result.Left)
+	return Response(c, result)
 }
 
 // SearchUsers @Summary Example SearchUsers
@@ -104,10 +103,7 @@ func (con *DemoController) SearchUsers(c *fiber.Ctx) error {
 		c.Query("keyword", ""),
 		c.QueryInt("limit", 10),
 		c.QueryInt("offset", 0))
-	if result.IsRight() {
-		return OkResult(c, result.Right)
-	}
-	return ErrorResult(c, result.Left)
+	return Response(c, result)
 }
 
 // Insert @Summary Example Insert
@@ -118,11 +114,8 @@ func (con *DemoController) SearchUsers(c *fiber.Ctx) error {
 // @Success 200 {object} entity.User
 // @Router /api/demo/insert [post]
 func (con *DemoController) Insert(c *fiber.Ctx) error {
-	result := con.CommandFacade.Insert()
-	if result.IsRight() {
-		return OkResult(c, result.Right)
-	}
-	return ErrorResult(c, result.Left)
+	return Response(c, MapBody[dto.UserDto](c).
+		Then(con.CommandFacade.Insert))
 }
 
 // Update @Summary Example Update
@@ -131,13 +124,10 @@ func (con *DemoController) Insert(c *fiber.Ctx) error {
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} entity.User
-// @Router /api/demo/insert [post]
+// @Router /api/demo/:id/update [post]
 func (con *DemoController) Update(c *fiber.Ctx) error {
-	result := con.CommandFacade.Update()
-	if result.IsRight() {
-		return OkResult(c, result.Right)
-	}
-	return ErrorResult(c, result.Left)
+	return Response(c, MapCommandByRouteParamsId[dto.UserDto](c).
+		Then(con.CommandFacade.Update))
 }
 
 // Delete @Summary Example Delete
@@ -149,6 +139,16 @@ func (con *DemoController) Update(c *fiber.Ctx) error {
 // @Router /api/demo/insert [post]
 func (con *DemoController) Delete(c *fiber.Ctx) error {
 	result := con.CommandFacade.Delete()
+	return Response(c, result)
+}
+
+func (con *DemoController) Insert1(c *fiber.Ctx) error {
+	u := new(dto.UserDto)
+	if err := c.BodyParser(u); err != nil {
+		return err
+	}
+	input := util.MapFrom[dto.UserDto](u)
+	result := con.CommandFacade.Insert(*input)
 	if result.IsRight() {
 		return OkResult(c, result.Right)
 	}

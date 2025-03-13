@@ -52,6 +52,15 @@ func NewErrorCode(errorCode ErrorCode) ErrContext {
 	}
 }
 
+func NewErrorCodeWithMsg(errorCode ErrorCode, cause string) ErrContext {
+	return ErrContext{
+		Code:     errorCode,
+		HttpCode: errorCode.GetHttpCode(),
+		Msg:      errorCode.GetDefaultErrorMsg(),
+		Cause:    &cause,
+	}
+}
+
 func NewErrorWithCode(errorCode ErrorCode, err error) ErrContext {
 	return ErrContext{
 		Code:     errorCode,
