@@ -7,8 +7,8 @@ import (
 
 func (a *AppContext) MapRoute() {
 	// default Routes
-	a.app.Get("/ping", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"message": "pong"})
+	a.app.Get("/health", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"status": "fine"})
 	})
 
 	a.app.Get("/master", func(c *fiber.Ctx) error {
@@ -21,7 +21,7 @@ func (a *AppContext) MapRoute() {
 		})
 	})
 
-	api := a.app.Group("/api", middleware)
+	api := a.app.Group("/api", apiMiddleware)
 
 	// Stateless Controller
 	controllers.ConfigUserController(a.Config).MapRoute(api.Group("/user"))
@@ -30,6 +30,6 @@ func (a *AppContext) MapRoute() {
 	controllers.NewDemoController(a.Config).MapRoute(api.Group("/demo"))
 }
 
-func middleware(c *fiber.Ctx) error {
+func apiMiddleware(c *fiber.Ctx) error {
 	return c.Next()
 }

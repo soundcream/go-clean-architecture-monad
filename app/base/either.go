@@ -89,3 +89,10 @@ func Validate[T any](input *T, err *ErrContext, fn func(*T) bool, error *ErrCont
 	}
 	return NewEither[T, ErrContext](input, err)
 }
+
+func CheckNull[T any](model *T) Either[T, ErrContext] {
+	if model == nil {
+		return LeftEither[T, ErrContext](NewErrorCode(BadRequest))
+	}
+	return RightEither[T, ErrContext](*model)
+}

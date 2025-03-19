@@ -18,17 +18,10 @@ func NewDemoFacade() DemoFacade {
 }
 
 func (f *demoFacade) Validate(u *entity.User) base.Either[entity.User, base.ErrContext] {
-	return checkNull(u).
+	return base.CheckNull[entity.User](u).
 		Then(checkUsername).
 		DoNext(checkName).
 		DoNext(checkEmail)
-}
-
-func checkNull[T any](model *T) base.Either[T, base.ErrContext] {
-	if model == nil {
-		return base.LeftEither[T, base.ErrContext](base.NewErrorCode(base.BadRequest))
-	}
-	return base.RightEither[T, base.ErrContext](*model)
 }
 
 func checkUsername(u entity.User) base.Either[entity.User, base.ErrContext] {

@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/contrib/fiberi18n/v2"
 	jwtware "github.com/gofiber/contrib/jwt"
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
@@ -27,6 +28,19 @@ import (
 type AppContext struct {
 	app    *fiber.App
 	Config *global.Config
+}
+
+func (a *AppContext) Bootstrapper() {
+	a.SetupAppConfig()
+	a.SetupLog()
+	a.SetupI18n()
+	a.SetupValidator()
+	a.SetupSwagger()
+	a.SetupCustomHandler()
+	a.useFavicon()
+	a.SetupAuthorization()
+	a.MapRoute()
+	a.SetupWebSocket()
 }
 
 func (a *AppContext) SetupLog() {
@@ -138,17 +152,6 @@ func (a *AppContext) SetupValidator() {
 	})
 }
 
-func (a *AppContext) Bootstrapper() {
-	a.SetupAppConfig()
-	a.SetupLog()
-	a.SetupI18n()
-	a.SetupValidator()
-	a.SetupSwagger()
-	a.app.Use(CustomHandler)
-	a.SetupAuthorization()
-	a.MapRoute()
-}
-
 // Sign-in @Summary
 // @Description
 // @Tags Sign-in
@@ -157,8 +160,6 @@ func (a *AppContext) Bootstrapper() {
 // @Success 200
 // @Router /api/signin [get]
 func (a *AppContext) SetupAuthorization() {
-	useFavicon(a)
-
 	// GET TOKEN
 	a.app.Get("/api/signin", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"token": CreateToken()})
@@ -180,6 +181,49 @@ func (a *AppContext) SetupAuthorization() {
 
 	// Restricted Routes
 	a.app.Get("/restricted", restricted)
+}
+
+func (a *AppContext) SetupCustomHandler() {
+	a.app.Use(CustomHandler)
+}
+
+func (a *AppContext) SetupWebSocket() {
+	cfg := websocket.Config{
+		RecoverHandler: func(conn *websocket.Conn) {
+			if err := recover(); err != nil {
+				err := conn.WriteJSON(fiber.Map{"customError": "error occurred"})
+				if err != nil {
+					return
+				}
+			}
+		},
+	}
+
+	a.app.Get("/ws/:id", websocket.New(func(c *websocket.Conn) {
+		// c.Locals is added to the *websocket.Conn
+		log.Info(c.Locals("allowed"))  // true
+		log.Info(c.Params("id"))       // 123
+		log.Info(c.Query("v"))         // 1.0
+		log.Info(c.Cookies("session")) // ""
+		// websocket.Conn bindings https://pkg.go.dev/github.com/fasthttp/websocket?tab=doc#pkg-index
+		var (
+			mt  int
+			msg []byte
+			err error
+		)
+		for {
+			if mt, msg, err = c.ReadMessage(); err != nil {
+				log.Info("read:", err)
+				break
+			}
+			log.Info("recv: %s", msg)
+
+			if err = c.WriteMessage(mt, msg); err != nil {
+				log.Info("write:", err)
+				break
+			}
+		}
+	}, cfg))
 }
 
 func CreateToken() string {
@@ -223,7 +267,7 @@ func UnauthorizedHandler(ctx *fiber.Ctx, err error) error {
 	return ctx.Status(fiber.StatusUnauthorized).JSON(dto.ErrorContextResponse(base.NewErrorCode(base.Unauthorized)))
 }
 
-func useFavicon(a *AppContext) {
+func (a *AppContext) useFavicon() {
 	a.app.Use(favicon.New())
 	// config for customization
 	//a.app.Use(favicon.New(favicon.Config{

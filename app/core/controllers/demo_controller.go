@@ -44,8 +44,14 @@ func (con *DemoController) MapRoute(route fiber.Router) {
 	route.Put("/:id/update", func(c *fiber.Ctx) error {
 		return con.Update(c)
 	})
-	route.Delete("/delete", func(c *fiber.Ctx) error {
+	route.Delete("/:id/delete", func(c *fiber.Ctx) error {
 		return con.Delete(c)
+	})
+	route.Post("/:id/updatew", func(c *fiber.Ctx) error {
+		return con.UpdateWhere(c)
+	})
+	route.Post("/:id/updatefw", func(c *fiber.Ctx) error {
+		return con.UpdateFieldWhere(c)
 	})
 	route.Post("/mapper", func(c *fiber.Ctx) error {
 		return con.TestMap(c)
@@ -138,8 +144,18 @@ func (con *DemoController) Update(c *fiber.Ctx) error {
 // @Success 200 {object} entity.User
 // @Router /api/demo/insert [post]
 func (con *DemoController) Delete(c *fiber.Ctx) error {
-	result := con.CommandFacade.Delete()
-	return Response(c, result)
+	return Response(c, GetRouteParamsById(c).
+		Then(con.CommandFacade.Delete))
+}
+
+func (con *DemoController) UpdateWhere(c *fiber.Ctx) error {
+	return Response(c, GetRouteParamsById(c).
+		Then(con.CommandFacade.UpdateWhere))
+}
+
+func (con *DemoController) UpdateFieldWhere(c *fiber.Ctx) error {
+	return Response(c, GetRouteParamsById(c).
+		Then(con.CommandFacade.UpdateFieldWhere))
 }
 
 func (con *DemoController) Insert1(c *fiber.Ctx) error {

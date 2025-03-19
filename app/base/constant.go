@@ -14,12 +14,12 @@ const (
 
 // ErrorCode Error Code
 const (
-	NotFound      ErrorCode = 100 // Error Data Notfound
-	BadRequest    ErrorCode = 101 // Error Invalid Model or Model is null
-	Invalidate    ErrorCode = 102 // Error Invalidate data (Handle)
-	Conflict      ErrorCode = 103 // Error Conflict data conflict (Handle)
-	Integration   ErrorCode = 104 // Error When Integrate External Service
-	Invalid       ErrorCode = 105 // Error Not complete
+	NotFound      ErrorCode = 404 // Error Data Notfound
+	BadRequest    ErrorCode = 400 // Error Invalid Model or Model is null
+	Invalidate    ErrorCode = 410 // Error Invalidate data (Handle)
+	Conflict      ErrorCode = 411 // Error Conflict data conflict (Handle)
+	Integration   ErrorCode = 412 // Error When Integrate External Service
+	Invalid       ErrorCode = 413 // Error Not complete
 	Unauthorized  ErrorCode = 401 // Error Unauthorized
 	UnHandleError ErrorCode = 500 // Internal Server Error, UnHandle Error
 )

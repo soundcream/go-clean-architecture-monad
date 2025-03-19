@@ -3,31 +3,36 @@ package dto
 import (
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
+	"time"
 )
 
 type Response[T any] struct {
-	Data    *T
-	Success bool
-	Error   *global.ErrorHandlerResp
+	Data             *T
+	Success          bool
+	ResponseDateTime time.Time
+	Error            *global.ErrorHandlerResp
 }
 
 func SuccessResponse[T any](data T) Response[T] {
 	return Response[T]{
-		Data:    &data,
-		Success: true,
+		Data:             &data,
+		Success:          true,
+		ResponseDateTime: time.Now(),
 	}
 }
 
 func ErrorResponse(error global.ErrorHandlerResp) Response[string] {
 	return Response[string]{
-		Success: false,
-		Error:   &error,
+		Success:          false,
+		ResponseDateTime: time.Now(),
+		Error:            &error,
 	}
 }
 
 func ErrorContextResponse(error base.ErrContext) Response[string] {
 	return Response[string]{
-		Success: false,
+		Success:          false,
+		ResponseDateTime: time.Now(),
 		Error: &global.ErrorHandlerResp{
 			Code:    int(error.Code),
 			Message: error.Code.GetDefaultErrorMsg(),
@@ -38,7 +43,8 @@ func ErrorContextResponse(error base.ErrContext) Response[string] {
 
 func ErrorUnHandlerResponse() Response[string] {
 	return Response[string]{
-		Success: false,
+		Success:          false,
+		ResponseDateTime: time.Now(),
 		Error: &global.ErrorHandlerResp{
 			Code:    int(base.UnHandleError),
 			Message: base.UnHandleError.GetDefaultErrorMsg(),
