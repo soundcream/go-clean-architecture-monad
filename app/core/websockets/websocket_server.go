@@ -1,7 +1,6 @@
 package websockets
 
 import (
-	"bytes"
 	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -9,34 +8,43 @@ import (
 	"log"
 )
 
-type WebSocketServer struct {
+type WebSocketServer interface {
+	HandleMessages()
+	HandleWebSocket(ctx *websocket.Conn)
+	BroadcastCmd(cmd WsCommand)
+}
+
+type webSocketServer struct {
 	id        string
 	clients   map[*websocket.Conn]bool
 	broadcast chan *Message
 }
 
-func NewWebSocket() *WebSocketServer {
-	return &WebSocketServer{
+func NewWebSocket() WebSocketServer {
+	return &webSocketServer{
 		id:        uuid.New().String(),
 		clients:   make(map[*websocket.Conn]bool),
 		broadcast: make(chan *Message),
 	}
 }
 
-func (s *WebSocketServer) HandleConnections(ctx *fiber.Ctx) error {
+func (s *webSocketServer) HandleConnections(ctx *fiber.Ctx) error {
 	if websocket.IsWebSocketUpgrade(ctx) {
 		return ctx.Next()
 	}
 	return fiber.ErrUpgradeRequired
 }
 
-func (s *WebSocketServer) HandleWebSocket(ctx *websocket.Conn) {
-
+func (s *webSocketServer) HandleWebSocket(ctx *websocket.Conn) {
 	// Register a new Client
 	s.clients[ctx] = true
 	defer func() {
 		delete(s.clients, ctx)
-		ctx.Close()
+		err := ctx.Close()
+		if err != nil {
+			log.Printf("WS ctx.Close  Error: %v ", err)
+			return
+		}
 	}()
 
 	for {
@@ -52,50 +60,45 @@ func (s *WebSocketServer) HandleWebSocket(ctx *websocket.Conn) {
 		if err := json.Unmarshal(msg, &message); err != nil {
 			log.Fatalf("Error Unmarshalling")
 		}
-		message.ClientName = s.id
+		message.Client = s.id
 
 		s.broadcast <- &message
 	}
 }
 
-func (s *WebSocketServer) HandleMessages() {
+func (s *webSocketServer) HandleMessages() {
 	for {
 		msg := <-s.broadcast
 		// Send the message to all Clients
 		for client := range s.clients {
-			err := client.WriteJSON(Message{
-				ClientName: "",
-				Text:       msg.Text,
+			err := client.WriteJSON(WsCommand{
+				Command: msg.Action,
+				Code:    200,
+				Msg:     msg.Value,
+				Data:    nil,
 			})
-			// err := client.WriteMessage(websocket.TextMessage, getMessageTemplate(msg))
 			if err != nil {
 				log.Printf("Write  Error: %v ", err)
-				client.Close()
+				err := client.Close()
+				if err != nil {
+					log.Printf("WS client.Close  Error: %v ", err)
+				}
 				delete(s.clients, client)
 			}
 		}
 	}
 }
 
-func getMessageTemplate(msg *Message) []byte {
-	var renderedMessage bytes.Buffer
-	message := "<div id=\"messages\" hx-swap-oob=\"beforeend\">\n    <p class=\"text-small\">" + msg.Text + "</p>\n</div>"
-	renderedMessage.WriteString(message)
-	return renderedMessage.Bytes()
+func (s *webSocketServer) BroadcastCmd(cmd WsCommand) {
+	for client := range s.clients {
+		err := client.WriteJSON(cmd)
+		if err != nil {
+			log.Printf("Write  Error: %v ", err)
+			err := client.Close()
+			if err != nil {
+				log.Printf("WS client.Close  Error: %v ", err)
+			}
+			delete(s.clients, client)
+		}
+	}
 }
-
-//func getMessageTemplate(msg *Message) []byte {
-//	tmpl, err := template.ParseFiles("views/message.html")
-//	if err != nil {
-//		log.Fatalf("template parsing: %s", err)
-//	}
-//
-//	// Render the template with the message as data.
-//	var renderedMessage bytes.Buffer
-//	err = tmpl.Execute(&renderedMessage, msg)
-//	if err != nil {
-//		log.Fatalf("template execution: %s", err)
-//	}
-//
-//	return renderedMessage.Bytes()
-//}

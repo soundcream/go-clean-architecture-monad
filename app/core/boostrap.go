@@ -29,6 +29,7 @@ import (
 type AppContext struct {
 	app    *fiber.App
 	Config *global.Config
+	WS     *websockets.WebSocketServer
 }
 
 func (a *AppContext) Bootstrapper() {
@@ -40,7 +41,7 @@ func (a *AppContext) Bootstrapper() {
 	a.SetupCustomHandler()
 	a.useFavicon()
 	a.SetupWebSocket()
-	a.SetupAuthorization()
+	//a.SetupAuthorization()
 	a.MapRoute()
 }
 
@@ -194,6 +195,7 @@ func (a *AppContext) SetupWebSocket() {
 		server.HandleWebSocket(ctx)
 	}))
 	go server.HandleMessages()
+	a.WS = &server
 }
 
 func CreateToken() string {

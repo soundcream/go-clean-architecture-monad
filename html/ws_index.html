@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"
+        integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container">
+        <div class="input-area">
+            <input type="text" name="text" min="1" id="messageInput" placeholder="Type a message...">
+            <button onclick="sendMsg()">Send</button>
+        </div>
+    </div>
+
+</body>
+<script>
+    var isConnected = false;
+    var client = "fe";
+    let token = "ex-token";//localStorage.getItem("appUser"); //this._authService.userToken();
+    var websocket;
+    // let timeMillisec = 60000;
+    //let timeMillisec = 300000;
+    let timeMillisec = 60000;
+
+    function initWebSocket() {
+        if (!isConnected) {
+            websocket = new WebSocket("http://127.0.0.1:8080/ws");
+            websocket.onopen = this.onOpen;
+            websocket.onmessage = this.onMessage;
+            websocket.onerror = this.onError;
+            websocket.onclose = this.onClose;
+        }
+    }
+
+    function onOpen(evt) {
+        if (websocket && token) {
+            websocket.send(JSON.stringify({
+                action: "auth",
+                client: client,
+                value: token
+            }));
+            isConnected = true;
+            setInterval(() => {
+                websocket.send(JSON.stringify({
+                    action: "ping",
+                    client: client
+                }));
+            }, timeMillisec);
+            console.log("websocket Connected");
+        }
+    }
+
+    //on error event
+    function onError(evt) {
+    }
+
+    //on close event
+    function onClose(evt) {
+        // WebSocketService.isConnected = false;
+        // alert('websocket closed:::::!!!')
+        window.location.reload();
+    }
+
+    function onMessage(evt) {
+        console.log("websocket EVENT", evt);
+        if (evt.data) {
+            if (evt.data=="ok") {
+            }else{
+                // Case JSON
+                // this.msg = JSON.parse(evt.data);
+                // const { Action = '' } = this.msg || {};
+                // if (Action == "kick") {
+                //     localStorage.clear();
+                //     window.location.reload();
+                // }
+            }
+        }
+    }
+
+    function sendMsg() {
+        var text = document.getElementById("messageInput").value;
+        if (websocket && token && text) {
+            websocket.send(JSON.stringify({
+                action: "msg",
+                client: client,
+                value: text
+            }));
+        }
+    }
+
+    initWebSocket();
+</script>
+
+</html>

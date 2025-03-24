@@ -27,7 +27,7 @@ func (a *AppContext) MapRoute() {
 	controllers.ConfigUserController(a.Config).MapRoute(api.Group("/user"))
 
 	// Stateful Controller
-	controllers.NewDemoController(a.Config).MapRoute(api.Group("/demo"))
+	controllers.NewDemoController(a.Config, a.WS).MapRoute(api.Group("/demo"))
 }
 
 func apiMiddleware(c *fiber.Ctx) error {

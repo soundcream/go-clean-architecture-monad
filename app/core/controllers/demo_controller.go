@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
 	"n4a3/clean-architecture/app/base/util"
+	"n4a3/clean-architecture/app/core/websockets"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/facades"
 	"n4a3/clean-architecture/app/integrates/db"
@@ -13,15 +15,17 @@ import (
 
 type DemoController struct {
 	Config        *global.Config
+	WS            *websockets.WebSocketServer
 	Facade        facades.DemoFacade
 	QueryFacade   facades.QueryFacade
 	CommandFacade facades.CommandFacade
 }
 
-func NewDemoController(config *global.Config) *DemoController {
+func NewDemoController(config *global.Config, ws *websockets.WebSocketServer) *DemoController {
 	repo := repository.NewUserRepository(db.NewQueryUnitOfWork(config).Right, db.NewUnitOfWork(config).Right)
 	return &DemoController{
 		Config:        config,
+		WS:            ws,
 		Facade:        facades.NewDemoFacade(),
 		QueryFacade:   facades.NewQueryFacade(repo),
 		CommandFacade: facades.NewCommandFacade(repo),
@@ -59,6 +63,9 @@ func (con *DemoController) MapRoute(route fiber.Router) {
 	route.Post("/mapper", func(c *fiber.Ctx) error {
 		return con.TestMap(c)
 	})
+	route.Post("/ws/cmd", func(c *fiber.Ctx) error {
+		return con.WsCmd(c)
+	})
 }
 
 // TestValidate @Summary Example of chain Validate
@@ -92,6 +99,16 @@ func (con *DemoController) TestMap(c *fiber.Ctx) error {
 		return OkResult(c, result.Right)
 	}
 	return ErrorResult(c, result.Left)
+}
+
+func (con *DemoController) WsCmd(c *fiber.Ctx) error {
+	if con.WS != nil {
+		(*con.WS).BroadcastCmd(websockets.WsCommand{
+			Msg:     "FromDemoController",
+			Command: "Msg",
+		})
+	}
+	return Response(c, base.RightEither[base.Unit, base.ErrContext](base.Unit{}))
 }
 
 // GetUserById @Summary Example GetUser
