@@ -6,18 +6,19 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/contrib/fiberi18n/v2"
 	jwtware "github.com/gofiber/contrib/jwt"
-	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
+	"github.com/gofiber/websocket/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/core/websockets"
 	"n4a3/clean-architecture/app/domain"
 	"n4a3/clean-architecture/app/integrates/dto"
 	"n4a3/clean-architecture/app/validators"
@@ -38,7 +39,7 @@ func (a *AppContext) Bootstrapper() {
 	a.SetupSwagger()
 	a.SetupCustomHandler()
 	a.useFavicon()
-	a.SetupAuthorization()
+	//a.SetupAuthorization()
 	a.MapRoute()
 	a.SetupWebSocket()
 }
@@ -188,42 +189,17 @@ func (a *AppContext) SetupCustomHandler() {
 }
 
 func (a *AppContext) SetupWebSocket() {
-	cfg := websocket.Config{
-		RecoverHandler: func(conn *websocket.Conn) {
-			if err := recover(); err != nil {
-				err := conn.WriteJSON(fiber.Map{"customError": "error occurred"})
-				if err != nil {
-					return
-				}
-			}
-		},
+	server := websockets.NewWebSocket()
+	a.app.Get("/ws", websocket.New(func(ctx *websocket.Conn) {
+		server.HandleWebSocket(ctx)
+	}))
+
+	go server.HandleMessages()
+	err := a.app.Listen(":8080")
+	if err != nil {
+		log.Fatal(err)
+		return
 	}
-
-	a.app.Get("/ws/:id", websocket.New(func(c *websocket.Conn) {
-		// c.Locals is added to the *websocket.Conn
-		log.Info(c.Locals("allowed"))  // true
-		log.Info(c.Params("id"))       // 123
-		log.Info(c.Query("v"))         // 1.0
-		log.Info(c.Cookies("session")) // ""
-		// websocket.Conn bindings https://pkg.go.dev/github.com/fasthttp/websocket?tab=doc#pkg-index
-		var (
-			mt  int
-			msg []byte
-			err error
-		)
-		for {
-			if mt, msg, err = c.ReadMessage(); err != nil {
-				log.Info("read:", err)
-				break
-			}
-			log.Info("recv: %s", msg)
-
-			if err = c.WriteMessage(mt, msg); err != nil {
-				log.Info("write:", err)
-				break
-			}
-		}
-	}, cfg))
 }
 
 func CreateToken() string {
