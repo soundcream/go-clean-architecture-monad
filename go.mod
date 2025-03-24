@@ -8,6 +8,7 @@ require (
 	github.com/gofiber/contrib/fiberi18n/v2 v2.0.5
 	github.com/gofiber/contrib/jwt v1.0.10
 	github.com/gofiber/fiber/v2 v2.52.6
+	github.com/gofiber/websocket/v2 v2.2.1
 	github.com/gofiber/swagger v1.1.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/nicksnyder/go-i18n/v2 v2.5.0

@@ -53,6 +53,9 @@ func (con *DemoController) MapRoute(route fiber.Router) {
 	route.Post("/:id/updatefw", func(c *fiber.Ctx) error {
 		return con.UpdateFieldWhere(c)
 	})
+	route.Get("/test-http", func(c *fiber.Ctx) error {
+		return con.RequestHttp(c)
+	})
 	route.Post("/mapper", func(c *fiber.Ctx) error {
 		return con.TestMap(c)
 	})
@@ -156,6 +159,10 @@ func (con *DemoController) UpdateWhere(c *fiber.Ctx) error {
 func (con *DemoController) UpdateFieldWhere(c *fiber.Ctx) error {
 	return Response(c, GetRouteParamsById(c).
 		Then(con.CommandFacade.UpdateFieldWhere))
+}
+
+func (con *DemoController) RequestHttp(c *fiber.Ctx) error {
+	return Response(c, con.Facade.RequestHttp())
 }
 
 func (con *DemoController) Insert1(c *fiber.Ctx) error {
