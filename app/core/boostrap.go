@@ -39,9 +39,9 @@ func (a *AppContext) Bootstrapper() {
 	a.SetupSwagger()
 	a.SetupCustomHandler()
 	a.useFavicon()
-	//a.SetupAuthorization()
-	a.MapRoute()
 	a.SetupWebSocket()
+	a.SetupAuthorization()
+	a.MapRoute()
 }
 
 func (a *AppContext) SetupLog() {
@@ -193,13 +193,7 @@ func (a *AppContext) SetupWebSocket() {
 	a.app.Get("/ws", websocket.New(func(ctx *websocket.Conn) {
 		server.HandleWebSocket(ctx)
 	}))
-
 	go server.HandleMessages()
-	err := a.app.Listen(":8080")
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
 }
 
 func CreateToken() string {

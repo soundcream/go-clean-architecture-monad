@@ -63,19 +63,17 @@ func (s *WebSocketServer) HandleMessages() {
 		msg := <-s.broadcast
 		// Send the message to all Clients
 		for client := range s.clients {
-			//err := client.WriteJSON(Message{
-			//	ClientName: "",
-			//	Text:       msg.Text,
-			//})
-			err := client.WriteMessage(websocket.TextMessage, getMessageTemplate(msg))
+			err := client.WriteJSON(Message{
+				ClientName: "",
+				Text:       msg.Text,
+			})
+			// err := client.WriteMessage(websocket.TextMessage, getMessageTemplate(msg))
 			if err != nil {
 				log.Printf("Write  Error: %v ", err)
 				client.Close()
 				delete(s.clients, client)
 			}
-
 		}
-
 	}
 }
 
