@@ -3,9 +3,9 @@ package websockets
 import (
 	"encoding/json"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/websocket/v2"
 	"github.com/google/uuid"
-	"log"
 )
 
 type WebSocketServer interface {
@@ -42,7 +42,7 @@ func (s *webSocketServer) HandleWebSocket(ctx *websocket.Conn) {
 		delete(s.clients, ctx)
 		err := ctx.Close()
 		if err != nil {
-			log.Printf("WS ctx.Close  Error: %v ", err)
+			log.Error("WS ctx.Close  Error: %v ", err)
 			return
 		}
 	}()
@@ -50,15 +50,16 @@ func (s *webSocketServer) HandleWebSocket(ctx *websocket.Conn) {
 	for {
 		_, msg, err := ctx.ReadMessage()
 		if err != nil {
-			log.Println("Read Error:", err)
+			log.Error("Read Error:", err)
 			break
 		}
 
 		// send the message to the broadcast channel
-		log.Println(string(msg))
+		log.Error(string(msg))
 		var message Message
 		if err := json.Unmarshal(msg, &message); err != nil {
-			log.Fatalf("Error Unmarshalling")
+			log.Error("Error Unmarshalling")
+			continue
 		}
 		message.Client = s.id
 
@@ -75,13 +76,13 @@ func (s *webSocketServer) HandleMessages() {
 				Command: msg.Action,
 				Code:    200,
 				Msg:     msg.Value,
-				Data:    nil,
+				Data:    msg.Model,
 			})
 			if err != nil {
-				log.Printf("Write  Error: %v ", err)
+				log.Error("Write  Error: %v ", err)
 				err := client.Close()
 				if err != nil {
-					log.Printf("WS client.Close  Error: %v ", err)
+					log.Error("WS client.Close  Error: %v ", err)
 				}
 				delete(s.clients, client)
 			}
@@ -93,10 +94,10 @@ func (s *webSocketServer) BroadcastCmd(cmd WsCommand) {
 	for client := range s.clients {
 		err := client.WriteJSON(cmd)
 		if err != nil {
-			log.Printf("Write  Error: %v ", err)
+			log.Error("Write  Error: %v ", err)
 			err := client.Close()
 			if err != nil {
-				log.Printf("WS client.Close  Error: %v ", err)
+				log.Error("WS client.Close  Error: %v ", err)
 			}
 			delete(s.clients, client)
 		}

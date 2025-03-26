@@ -4,6 +4,7 @@ type Message struct {
 	Action string `json:"action"`
 	Client string `json:"client"`
 	Value  string `json:"value"`
+	Model  *any   `json:"model"`
 }
 
 type WsCommand struct {
