@@ -3,6 +3,8 @@ package facades
 import (
 	"fmt"
 	"n4a3/clean-architecture/app/base"
+	"n4a3/clean-architecture/app/base/either"
+	"n4a3/clean-architecture/app/base/global"
 	stringutil "n4a3/clean-architecture/app/base/util/string"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/integrates/services"
@@ -15,10 +17,12 @@ type DemoFacade interface {
 
 type demoFacade struct {
 	httpService services.HttpService
+	config      global.Config
 }
 
-func NewDemoFacade() DemoFacade {
+func NewDemoFacade(config global.Config) DemoFacade {
 	return &demoFacade{
+		config:      config,
 		httpService: services.NewHttpService(),
 	}
 }
@@ -31,7 +35,8 @@ func (f *demoFacade) Validate(u *entity.User) base.Either[entity.User, base.ErrC
 }
 
 func (f *demoFacade) RequestHttp() base.Either[base.Unit, base.ErrContext] {
-	result := f.httpService.HttpGet()
+	httpRequest := f.httpService.GetHttpRequest(f.config.Service.PgwUrl, nil)
+	result := either.Bind(httpRequest, base.JsonUnmarshal[[]any])
 	fmt.Println(result)
 	return base.RightEither[base.Unit, base.ErrContext](base.Unit{})
 }

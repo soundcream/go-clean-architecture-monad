@@ -26,7 +26,7 @@ func NewDemoController(config *global.Config, ws *websockets.WebSocketServer) *D
 	return &DemoController{
 		Config:        config,
 		WS:            ws,
-		Facade:        facades.NewDemoFacade(),
+		Facade:        facades.NewDemoFacade(*config),
 		QueryFacade:   facades.NewQueryFacade(repo),
 		CommandFacade: facades.NewCommandFacade(repo),
 	}

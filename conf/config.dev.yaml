@@ -16,3 +16,6 @@ readDbConfig:
   dbName: test
   username: postgres
   password: 1234
+service:
+  pgwUrl: http://localhost:8083/api/master-data/service-provider-method
+  qrPayUrl:

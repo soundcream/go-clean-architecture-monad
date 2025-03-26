@@ -6,12 +6,16 @@ type (
 		App          AppConfig
 		DbConfig     DbConfig
 		ReadDbConfig DbConfig
+		Http         HttpConfig
 		Public       []string
+		Service      IntegrationService
 	}
 	AppConfig struct {
 		AppName  string
 		Domain   string
 		HttpPort int
+	}
+	HttpConfig struct {
 	}
 	DbConfig struct {
 		Host     string
@@ -19,6 +23,10 @@ type (
 		DbName   string
 		Username string
 		Password string
+	}
+	IntegrationService struct {
+		PgwUrl   string
+		QrPayUrl string
 	}
 )
 

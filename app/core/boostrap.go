@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/swagger"
 	"github.com/gofiber/websocket/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -49,10 +50,16 @@ func (a *AppContext) SetupLog() {
 	// Initialize default config
 	a.app.Use(logger.New())
 
-	// Or extend your config for customization
-	// Logging remote IP and Port
+	// Logging Request ID
+	a.app.Use(requestid.New())
+
+	//a.app.Use(logger.New(logger.Config{
+	//	Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	//}))
+
 	a.app.Use(logger.New(logger.Config{
-		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+		// For more options, see the Config section
+		Format: "${pid} [${locals:requestid}] ${status} - ${method} ${path}\n",
 	}))
 }
 
