@@ -18,9 +18,9 @@ import (
 	"golang.org/x/text/language"
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
-	"n4a3/clean-architecture/app/core/websockets"
 	"n4a3/clean-architecture/app/domain"
 	"n4a3/clean-architecture/app/integrates/dto"
+	"n4a3/clean-architecture/app/integrates/websockets"
 	"n4a3/clean-architecture/app/validators"
 	"os"
 	"time"
@@ -41,7 +41,7 @@ func (a *AppContext) Bootstrapper() {
 	a.SetupCustomHandler()
 	a.useFavicon()
 	a.SetupWebSocket()
-	//a.SetupAuthorization()
+	a.SetupAuthorization()
 	a.MapRoute()
 }
 

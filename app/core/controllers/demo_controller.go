@@ -5,12 +5,12 @@ import (
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
 	"n4a3/clean-architecture/app/base/util"
-	"n4a3/clean-architecture/app/core/websockets"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/facades"
 	"n4a3/clean-architecture/app/integrates/db"
 	"n4a3/clean-architecture/app/integrates/dto"
 	"n4a3/clean-architecture/app/integrates/repository"
+	"n4a3/clean-architecture/app/integrates/websockets"
 )
 
 type DemoController struct {
