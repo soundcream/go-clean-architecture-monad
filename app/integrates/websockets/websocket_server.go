@@ -58,7 +58,7 @@ func (s *webSocketServer) HandleWebSocket(ctx *websocket.Conn) {
 		log.Error(string(msg))
 		var message Message
 		if err := json.Unmarshal(msg, &message); err != nil {
-			log.Error("Error Unmarshalling")
+			log.Error("Error Unmarshalling", err)
 			continue
 		}
 		message.Client = s.id

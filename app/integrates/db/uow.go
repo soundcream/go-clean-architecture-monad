@@ -41,15 +41,15 @@ type UnitOfWorkWrite struct {
 }
 
 func (uow UnitOfWorkWrite) BeginReadCommitTx() TransactionContext {
-	return uow.BeginReadCommitTx()
+	return uow.Context.BeginReadCommitTx()
 }
 
 func (uow UnitOfWorkWrite) BeginSerializableTx() TransactionContext {
-	return uow.BeginSerializableTx()
+	return uow.Context.BeginSerializableTx()
 }
 
 func (uow UnitOfWorkWrite) DoTransaction(fn func(*TransactionContext) error) error {
-	return uow.DoTransaction(fn)
+	return uow.Context.DoTransaction(fn)
 }
 
 func NewQueryUnitOfWork(config *global.Config) base.Either[QueryUnitOfWork, error] {

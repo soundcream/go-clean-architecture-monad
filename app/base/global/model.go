@@ -6,6 +6,7 @@ type (
 		App          AppConfig
 		DbConfig     DbConfig
 		ReadDbConfig DbConfig
+		RedisConfig  RedisConfig
 		Http         HttpConfig
 		Public       []string
 		Service      IntegrationService
@@ -23,6 +24,13 @@ type (
 		DbName   string
 		Username string
 		Password string
+	}
+	RedisConfig struct {
+		Host     string
+		Port     int
+		Password string
+		DB       int
+		Protocol int
 	}
 	IntegrationService struct {
 		PgwUrl   string

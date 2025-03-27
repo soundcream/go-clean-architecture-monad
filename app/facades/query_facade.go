@@ -51,6 +51,7 @@ func (f QueryFacade) SearchUsers(keyword string, limit, offset int) base.Either[
 	result := f.userRepository.BuildQueryPagination().
 		PreloadWith(entity.User{}.UserGroup, "is_active = ?", true).
 		Where("name LIKE ?", fmt.Sprintf("%%%s%%", keyword)).
+		Where("username LIKE ?", fmt.Sprintf("%%%s%%", keyword)).
 		Order("point desc").
 		ToPaging(limit, offset)
 	return base.NewRightEither[global.PagingModel[entity.User], base.ErrContext](&result)

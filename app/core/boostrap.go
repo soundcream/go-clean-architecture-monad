@@ -15,11 +15,13 @@ import (
 	"github.com/gofiber/websocket/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/global"
 	"n4a3/clean-architecture/app/domain"
+	"n4a3/clean-architecture/app/integrates/cache"
 	"n4a3/clean-architecture/app/integrates/dto"
 	"n4a3/clean-architecture/app/integrates/websockets"
 	"n4a3/clean-architecture/app/validators"
@@ -44,6 +46,7 @@ func (a *AppContext) Bootstrapper() {
 	a.SetupWebSocket()
 	a.SetupAuthorization()
 	a.MapRoute()
+	a.SubscribeRedisMessage()
 }
 
 func (a *AppContext) SetupLog() {
@@ -203,6 +206,13 @@ func (a *AppContext) SetupWebSocket() {
 	}))
 	go server.HandleMessages()
 	a.WS = &server
+}
+
+func (a *AppContext) SubscribeRedisMessage() {
+	context := cache.NewRedisContext(a.Config.RedisConfig)
+	go context.Subscribe("ws-msg", func(message *redis.Message) {
+		fmt.Println("Receive Message:", message.Payload)
+	})
 }
 
 func CreateToken() string {

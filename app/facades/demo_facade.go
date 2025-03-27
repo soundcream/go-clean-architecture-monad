@@ -5,6 +5,7 @@ import (
 	"n4a3/clean-architecture/app/base"
 	"n4a3/clean-architecture/app/base/either"
 	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/base/util/json"
 	stringutil "n4a3/clean-architecture/app/base/util/string"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/integrates/services"
@@ -36,7 +37,7 @@ func (f *demoFacade) Validate(u *entity.User) base.Either[entity.User, base.ErrC
 
 func (f *demoFacade) RequestHttp() base.Either[base.Unit, base.ErrContext] {
 	httpRequest := f.httpService.GetHttpRequest(f.config.Service.PgwUrl, nil)
-	result := either.Bind(httpRequest, base.JsonUnmarshal[[]any])
+	result := either.Bind(httpRequest, json.Unmarshal[[]any])
 	fmt.Println(result)
 	return base.RightEither[base.Unit, base.ErrContext](base.Unit{})
 }

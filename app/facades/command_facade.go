@@ -60,7 +60,6 @@ func (c commandFacade) Update(user dto.CommandDto[dto.UserDto]) base.Either[dto.
 	u := util.MapFrom[entity.User](user.Model)
 	u.BaseEntity = entity.NewBaseUpdateWithId(user.Id, "system_update")
 	result := c.userRepository.Update(user.Id, *u)
-	//result := c.userRepository.UpdateAllFields(u)
 	return MapToResult[dto.CommandDto[dto.UserDto]](result, user)
 }
 

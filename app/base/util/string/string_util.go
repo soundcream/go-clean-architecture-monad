@@ -19,7 +19,7 @@ func ToIntAndError(str string) (int, error) {
 }
 
 func ToInt(str string) *int {
-	if i, err := ToIntAndError(str); err != nil {
+	if i, err := ToIntAndError(str); err == nil {
 		return &i
 	}
 	return nil

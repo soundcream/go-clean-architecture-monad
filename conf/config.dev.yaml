@@ -16,6 +16,12 @@ readDbConfig:
   dbName: test
   username: postgres
   password: 1234
+redisConfig:
+  host: 192.168.1.225
+  port: 6379
+  password:
+  db: 0
+  protocol: 2
 service:
   pgwUrl: http://localhost:8083/api/master-data/service-provider-method
   qrPayUrl:

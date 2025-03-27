@@ -52,30 +52,42 @@ func (c *dbContext) BeginSerializableTx() TransactionContext {
 
 func (c *dbContext) SavePoint(name string) base.Either[base.Unit, base.ErrContext] {
 	result := c.db.SavePoint(name)
-	return base.NewEither(base.NewUnit(), base.NewIfError(result.Error))
+	return base.NewEither(base.NewUnitPtr(), base.NewIfError(result.Error))
 }
 
 func (c *dbContext) RollbackTo(name string) base.Either[base.Unit, base.ErrContext] {
 	result := c.db.RollbackTo(name)
-	return base.NewEither(base.NewUnit(), base.NewIfError(result.Error))
+	return base.NewEither(base.NewUnitPtr(), base.NewIfError(result.Error))
 }
 
 func (c *dbContext) Commit() base.Either[base.Unit, base.ErrContext] {
 	result := c.db.Commit()
-	return base.NewEither(base.NewUnit(), base.NewIfError(result.Error))
+	return base.NewEither(base.NewUnitPtr(), base.NewIfError(result.Error))
 }
 
 func (c *dbContext) Rollback() base.Either[base.Unit, base.ErrContext] {
 	result := c.db.Rollback()
-	return base.NewEither(base.NewUnit(), base.NewIfError(result.Error))
+	return base.NewEither(base.NewUnitPtr(), base.NewIfError(result.Error))
 }
 
+// DoTransaction Example use
+// c := *cmdUoW.Right
+//
+//	err := c.DoTransaction(func(context *db.TransactionContext) error {
+//		return nil
+//	})
 func (c *dbContext) DoTransaction(fn func(*TransactionContext) error) error {
 	err := c.db.Transaction(func(db *gorm.DB) error {
 		tx := TransactionContext{
 			dbTx: db,
 		}
-		return fn(&tx)
+		er := fn(&tx)
+		if er != nil {
+			tx.Commit()
+		} else {
+			tx.Rollback()
+		}
+		return er
 	})
 	return err
 }

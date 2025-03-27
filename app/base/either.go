@@ -8,8 +8,12 @@ type Either[R, L any] struct {
 type Unit struct {
 }
 
-func NewUnit() *Unit {
+func NewUnitPtr() *Unit {
 	return &Unit{}
+}
+
+func NewUnit() Unit {
+	return Unit{}
 }
 
 func (e Either[R, L]) IsRight() bool {
