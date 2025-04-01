@@ -17,7 +17,7 @@ func NewUnit() Unit {
 }
 
 func (e Either[R, L]) IsRight() bool {
-	return e.Right != nil && !e.IsLeft()
+	return !e.IsLeft()
 }
 
 func (e Either[R, L]) IsLeft() bool {

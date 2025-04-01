@@ -21,7 +21,6 @@ func NewQueryFacade(repo repository.UserRepository) QueryFacade {
 
 func (f QueryFacade) GetUser() base.Either[entity.User, base.ErrContext] {
 	user01 := f.userRepository.FindById(1)
-	user01.SetUpdater("abc")
 	count01 := f.userRepository.Count("point > ?", 1)
 	user02 := f.userRepository.Where("name LIKE ?", "%te%")
 	user03 := f.userRepository.FindByIdPreloadInclude(3, entity.User{}.UserGroup, "is_active = ?", true)
@@ -39,12 +38,12 @@ func (f QueryFacade) GetUser() base.Either[entity.User, base.ErrContext] {
 		Order("point desc").
 		ToPaging(1, 0)
 	fmt.Println(user01, user02, user03, user04, user05, user06, count01)
-	return base.NewRightEither[entity.User, base.ErrContext](user01)
+	return user01
 }
 
 func (f QueryFacade) GetUserById(id int) base.Either[entity.User, base.ErrContext] {
 	result := f.userRepository.FindById(id)
-	return base.NewRightEither[entity.User, base.ErrContext](result)
+	return result
 }
 
 func (f QueryFacade) SearchUsers(keyword string, limit, offset int) base.Either[global.PagingModel[entity.User], base.ErrContext] {

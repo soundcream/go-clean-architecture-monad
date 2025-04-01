@@ -93,6 +93,7 @@ func (r *redisContext) Subscribe(channel string, fn func(*redis.Message)) {
 		msg, err := subscriber.ReceiveMessage(r.context)
 		if err != nil {
 			log.Error("Cannot ReceiveMessage Redis Message", err)
+			break
 		} else {
 			fn(msg)
 		}

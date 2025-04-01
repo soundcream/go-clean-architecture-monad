@@ -23,69 +23,82 @@ func (m *MockRepository[Entity]) BuildQueryPagination() db.QueryContext[Entity] 
 	return arguments.Get(0).(db.QueryContext[Entity])
 }
 
-func (m *MockRepository[Entity]) FindByIdPreload(id int, preloads *map[string][]interface{}) *Entity {
+func (m *MockRepository[Entity]) FindByIdPreload(id int, preloads *map[string][]interface{}) base.Either[Entity, base.ErrContext] {
 	arguments := m.Called(id, preloads)
-	return arguments.Get(0).(*Entity)
+	result := arguments.Get(0).(*Entity)
+	return base.RightEither[Entity, base.ErrContext](*result)
 }
 
-func (m *MockRepository[Entity]) FindByIdPreloadInclude(id int, field interface{}, args ...interface{}) *Entity {
+func (m *MockRepository[Entity]) FindByIdPreloadInclude(id int, field interface{}, args ...interface{}) base.Either[Entity, base.ErrContext] {
 	arguments := m.Called(id, field, args)
-	return arguments.Get(0).(*Entity)
+	result := arguments.Get(0).(*Entity)
+	return base.RightEither[Entity, base.ErrContext](*result)
 }
 
-func (m *MockRepository[Entity]) FindByIdLeftJoins(id int, joins ...string) *Entity {
+func (m *MockRepository[Entity]) FindByIdLeftJoins(id int, joins ...string) base.Either[Entity, base.ErrContext] {
 	arguments := m.Called(id, joins)
-	return arguments.Get(0).(*Entity)
+	result := arguments.Get(0).(*Entity)
+	return base.RightEither[Entity, base.ErrContext](*result)
 }
 
-func (m *MockRepository[Entity]) FindByIdInnerJoins(id int, joins ...string) *Entity {
+func (m *MockRepository[Entity]) FindByIdInnerJoins(id int, joins ...string) base.Either[Entity, base.ErrContext] {
 	arguments := m.Called(id, joins)
-	return arguments.Get(0).(*Entity)
+	result := arguments.Get(0).(*Entity)
+	return base.RightEither[Entity, base.ErrContext](*result)
 }
 
-func (m *MockRepository[Entity]) FindById(id int) *Entity {
+func (m *MockRepository[Entity]) FindById(id int) base.Either[Entity, base.ErrContext] {
 	arguments := m.Mock.Called(id)
-	return arguments.Get(0).(*Entity)
+	result := arguments.Get(0).(*Entity)
+	return base.RightEither[Entity, base.ErrContext](*result)
 }
 
-func (m *MockRepository[Entity]) FindBy(query interface{}, args ...interface{}) *Entity {
+func (m *MockRepository[Entity]) FindBy(query interface{}, args ...interface{}) base.Either[Entity, base.ErrContext] {
 	arguments := m.Called(query, args)
-	return arguments.Get(0).(*Entity)
+	result := arguments.Get(0).(*Entity)
+	return base.RightEither[Entity, base.ErrContext](*result)
 }
 
-func (m *MockRepository[Entity]) FindOrderBy(order interface{}, query interface{}, args ...interface{}) *Entity {
+func (m *MockRepository[Entity]) FindOrderBy(order interface{}, query interface{}, args ...interface{}) base.Either[Entity, base.ErrContext] {
 	arguments := m.Called(order, query, args)
-	return arguments.Get(0).(*Entity)
+	result := arguments.Get(0).(*Entity)
+	return base.RightEither[Entity, base.ErrContext](*result)
 }
 
-func (m *MockRepository[Entity]) Where(query interface{}, args ...interface{}) []Entity {
+func (m *MockRepository[Entity]) Where(query interface{}, args ...interface{}) base.Either[[]Entity, base.ErrContext] {
 	arguments := m.Called(query, args)
-	return arguments.Get(0).([]Entity)
+	result := arguments.Get(0).([]Entity)
+	return base.RightEither[[]Entity, base.ErrContext](result)
 }
 
-func (m *MockRepository[Entity]) WhereOrderBy(order interface{}, query interface{}, args ...interface{}) []Entity {
+func (m *MockRepository[Entity]) WhereOrderBy(order interface{}, query interface{}, args ...interface{}) base.Either[[]Entity, base.ErrContext] {
 	arguments := m.Called(order, query, args)
-	return arguments.Get(0).([]Entity)
+	result := arguments.Get(0).([]Entity)
+	return base.RightEither[[]Entity, base.ErrContext](result)
 }
 
-func (m *MockRepository[Entity]) Count(query interface{}, args ...interface{}) *int {
+func (m *MockRepository[Entity]) Count(query interface{}, args ...interface{}) base.Either[int, base.ErrContext] {
 	arguments := m.Called(query, args)
-	return arguments.Get(0).(*int)
+	result := arguments.Get(0).(*int)
+	return base.RightEither[int, base.ErrContext](*result)
 }
 
-func (m *MockRepository[Entity]) CountBig(query interface{}, args ...interface{}) *int64 {
+func (m *MockRepository[Entity]) CountBig(query interface{}, args ...interface{}) base.Either[int64, base.ErrContext] {
 	arguments := m.Called(query, args)
-	return arguments.Get(0).(*int64)
+	result := arguments.Get(0).(*int64)
+	return base.RightEither[int64, base.ErrContext](*result)
 }
 
-func (m *MockRepository[Entity]) Sum(query interface{}, args ...interface{}) *int {
+func (m *MockRepository[Entity]) Sum(query interface{}, args ...interface{}) base.Either[int, base.ErrContext] {
 	arguments := m.Called(query, args)
-	return arguments.Get(0).(*int)
+	result := arguments.Get(0).(*int)
+	return base.RightEither[int, base.ErrContext](*result)
 }
 
-func (m *MockRepository[Entity]) SumBig(query interface{}, args ...interface{}) *big.Float {
+func (m *MockRepository[Entity]) SumBig(query interface{}, args ...interface{}) base.Either[big.Float, base.ErrContext] {
 	arguments := m.Called(query, args)
-	return arguments.Get(0).(*big.Float)
+	result := arguments.Get(0).(*big.Float)
+	return base.RightEither[big.Float, base.ErrContext](*result)
 }
 
 func (m *MockRepository[Entity]) init() *gorm.DB {

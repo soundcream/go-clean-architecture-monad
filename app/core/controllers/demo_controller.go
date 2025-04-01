@@ -151,7 +151,7 @@ func (con *DemoController) WsCmd(c *fiber.Ctx) error {
 // @Success 200 {object} entity.User
 // @Router /api/demo/user [get]
 func (con *DemoController) GetUserById(c *fiber.Ctx) error {
-	result := con.QueryFacade.GetUser()
+	result := con.QueryFacade.GetUserById(c.QueryInt("id"))
 	return Response(c, result)
 }
 

@@ -13,9 +13,9 @@ type Response[T any] struct {
 	Error            *global.ErrorHandlerResp
 }
 
-func SuccessResponse[T any](data T) Response[T] {
+func SuccessResponse[T any](data *T) Response[T] {
 	return Response[T]{
-		Data:             &data,
+		Data:             data,
 		Success:          true,
 		ResponseDateTime: time.Now(),
 	}

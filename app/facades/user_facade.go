@@ -36,7 +36,7 @@ func (f *userFacade) ListUsers() ([]entity.User, error) {
 
 func (f *userFacade) GetUserById(id int) (*entity.User, error) {
 	u := f.repo.FindById(id)
-	return u, nil
+	return u.Right, nil
 }
 
 func (f *userFacade) RemoveUserById(id int) base.Either[entity.User, error] {

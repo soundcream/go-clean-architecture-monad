@@ -1,16 +1,19 @@
 package entity
 
+import "gorm.io/gorm"
+
 // User
 // @Description A representation of a user.
 // @ID User
 type User struct {
 	*BaseEntity
-	Name        string     `column:"name" json:"name" example:"John Doe"`
-	Username    string     `column:"username" json:"username" example:"JohnDoe"`
-	Email       string     `column:"email" json:"email" example:"john.doe@example.com"`
-	Point       *int       `column:"point" json:"point" example:"0"`
-	UserGroupId *int       `column:"user_group_id" json:"userGroupId" example:"0"`
-	UserGroup   *UserGroup `json:"userGroup" gorm:"foreignKey:user_group_id"`
+	Name        string          `column:"name" json:"name" example:"John Doe"`
+	Username    string          `column:"username" json:"username" example:"JohnDoe"`
+	Email       string          `column:"email" json:"email" example:"john.doe@example.com"`
+	Point       *int            `column:"point" json:"point" example:"0"`
+	UserGroupId *int            `column:"user_group_id" json:"userGroupId" example:"0"`
+	UserGroup   *UserGroup      `json:"userGroup" gorm:"foreignKey:user_group_id"`
+	DeletedAt   *gorm.DeletedAt `column:"deleted_at" json:"deletedAt"`
 }
 
 func (User) TableName() string {

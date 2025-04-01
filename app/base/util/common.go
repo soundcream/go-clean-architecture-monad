@@ -2,6 +2,11 @@ package util
 
 import "reflect"
 
+func New[T any]() T {
+	t := new(T)
+	return *t
+}
+
 func ToPtr[T any](value T) *T {
 	return &value
 }

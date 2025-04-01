@@ -27,5 +27,5 @@ func NewUserRepository(rUoW *db.QueryUnitOfWork, uow *db.CommandUnitOfWork) User
 }
 
 func (r *userRepository) GetSpecialLogicUser(id int) *entity.User {
-	return r.FindByIdPreload(id, util.Map("UserGroup"))
+	return r.FindByIdPreload(id, util.Map("UserGroup")).Right
 }

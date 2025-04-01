@@ -74,7 +74,7 @@ func ErrorResult(c *fiber.Ctx, error *base.ErrContext) error {
 	return c.Status(error.HttpCode).JSON(dto.ErrorContextResponse(*error))
 }
 
-func OkResult(c *fiber.Ctx, data interface{}) error {
+func OkResult[T any](c *fiber.Ctx, data *T) error {
 	return c.Status(fiber.StatusOK).JSON(dto.SuccessResponse(data))
 }
 
