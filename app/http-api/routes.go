@@ -1,8 +1,8 @@
-package core
+package http_api
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"n4a3/clean-architecture/app/core/controllers"
+	"n4a3/clean-architecture/app/http-api/controllers"
 )
 
 func (a *AppContext) MapRoute() {

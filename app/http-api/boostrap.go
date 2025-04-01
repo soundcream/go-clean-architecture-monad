@@ -1,4 +1,4 @@
-package core
+package http_api
 
 import (
 	"fmt"
@@ -18,8 +18,8 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
-	"n4a3/clean-architecture/app/base"
-	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/core"
+	"n4a3/clean-architecture/app/core/global"
 	"n4a3/clean-architecture/app/domain"
 	"n4a3/clean-architecture/app/integrates/cache"
 	"n4a3/clean-architecture/app/integrates/dto"
@@ -113,7 +113,7 @@ func (a *AppContext) SetupI18n() {
 }
 
 func (a *AppContext) SetupAppConfig() {
-	env := os.Getenv(base.Environment)
+	env := os.Getenv(core.Environment)
 	//viper.SetConfigName(fmt.Sprintf("config.%s", env))
 	//viper.SetConfigType("yaml")
 	//viper.AddConfigPath("./conf")
@@ -159,7 +159,7 @@ func (a *AppContext) SetupValidator() {
 			Age:  0,
 		}
 		errs := myValidator.Validate(user)
-		result := base.NewErrContextFromInvalidateField(errs)
+		result := core.NewErrContextFromInvalidateField(errs)
 		return c.JSON(result)
 	})
 }
@@ -253,7 +253,7 @@ func CustomHandler(ctx *fiber.Ctx) error {
 }
 
 func UnauthorizedHandler(ctx *fiber.Ctx, err error) error {
-	return ctx.Status(fiber.StatusUnauthorized).JSON(dto.ErrorContextResponse(base.NewErrorCode(base.Unauthorized)))
+	return ctx.Status(fiber.StatusUnauthorized).JSON(dto.ErrorContextResponse(core.NewErrorCode(core.Unauthorized)))
 }
 
 func (a *AppContext) useFavicon() {
@@ -292,8 +292,8 @@ func NewApp() AppContext {
 				}))
 			} else {
 				return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse(global.ErrorHandlerResp{
-					Code:    int(base.UnHandleError),
-					Message: base.UnHandleError.GetDefaultErrorMsg(),
+					Code:    int(core.UnHandleError),
+					Message: core.UnHandleError.GetDefaultErrorMsg(),
 				}))
 			}
 		},

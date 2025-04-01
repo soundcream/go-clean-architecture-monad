@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"n4a3/clean-architecture/app/base"
-	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/core"
+	"n4a3/clean-architecture/app/core/global"
 	"time"
 )
 
@@ -29,7 +29,7 @@ func ErrorResponse(error global.ErrorHandlerResp) Response[string] {
 	}
 }
 
-func ErrorContextResponse(error base.ErrContext) Response[string] {
+func ErrorContextResponse(error core.ErrContext) Response[string] {
 	return Response[string]{
 		Success:          false,
 		ResponseDateTime: time.Now(),
@@ -46,8 +46,8 @@ func ErrorUnHandlerResponse() Response[string] {
 		Success:          false,
 		ResponseDateTime: time.Now(),
 		Error: &global.ErrorHandlerResp{
-			Code:    int(base.UnHandleError),
-			Message: base.UnHandleError.GetDefaultErrorMsg(),
+			Code:    int(core.UnHandleError),
+			Message: core.UnHandleError.GetDefaultErrorMsg(),
 		},
 	}
 }

@@ -3,8 +3,8 @@ package controllers
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"n4a3/clean-architecture/app/base"
-	stringutil "n4a3/clean-architecture/app/base/util/string"
+	"n4a3/clean-architecture/app/core"
+	stringutil "n4a3/clean-architecture/app/core/util/string"
 	"n4a3/clean-architecture/app/integrates/dto"
 )
 
@@ -12,40 +12,40 @@ type Controller interface {
 	MapRoute(route fiber.Router)
 }
 
-func MapBody[T any](c *fiber.Ctx) base.Either[T, base.ErrContext] {
+func MapBody[T any](c *fiber.Ctx) core.Either[T, core.ErrContext] {
 	result := new(T)
 	if err := c.BodyParser(result); err != nil {
-		return base.LeftEither[T, base.ErrContext](base.NewErrorCodeWithMsg(base.BadRequest, "Body empty"))
+		return core.LeftEither[T, core.ErrContext](core.NewErrorCodeWithMsg(core.BadRequest, "Body empty"))
 	}
-	return base.RightEither[T, base.ErrContext](*result)
+	return core.RightEither[T, core.ErrContext](*result)
 }
 
 // MapCommandByRouteParamsId
-func MapCommandByRouteParamsId[T any](c *fiber.Ctx) base.Either[dto.CommandDto[T], base.ErrContext] {
+func MapCommandByRouteParamsId[T any](c *fiber.Ctx) core.Either[dto.CommandDto[T], core.ErrContext] {
 	result := new(dto.CommandDto[T])
 	model := new(T)
 	if err := c.BodyParser(model); err != nil {
-		return base.LeftEither[dto.CommandDto[T], base.ErrContext](base.NewErrorCodeWithMsg(base.BadRequest, "Body empty"))
+		return core.LeftEither[dto.CommandDto[T], core.ErrContext](core.NewErrorCodeWithMsg(core.BadRequest, "Body empty"))
 	}
 	if model == nil {
-		return base.LeftEither[dto.CommandDto[T], base.ErrContext](base.NewErrorCodeWithMsg(base.BadRequest, "Model is null"))
+		return core.LeftEither[dto.CommandDto[T], core.ErrContext](core.NewErrorCodeWithMsg(core.BadRequest, "Model is null"))
 	}
 	result.Model = model
 	entityId := stringutil.ToIntEither(GetRouteParams(c, "id"))
 	if entityId.IsRight() {
 		result.Id = *entityId.Right
 	} else {
-		return base.LeftEither[dto.CommandDto[T], base.ErrContext](*entityId.Left)
+		return core.LeftEither[dto.CommandDto[T], core.ErrContext](*entityId.Left)
 	}
-	return base.RightEither[dto.CommandDto[T], base.ErrContext](*result)
+	return core.RightEither[dto.CommandDto[T], core.ErrContext](*result)
 }
 
-func GetRouteParamsById(c *fiber.Ctx) base.Either[int, base.ErrContext] {
+func GetRouteParamsById(c *fiber.Ctx) core.Either[int, core.ErrContext] {
 	entityId := stringutil.ToIntEither(GetRouteParams(c, "id"))
 	if entityId.IsRight() {
-		return base.RightEither[int, base.ErrContext](*entityId.Right)
+		return core.RightEither[int, core.ErrContext](*entityId.Right)
 	}
-	return base.LeftEither[int, base.ErrContext](*entityId.Left)
+	return core.LeftEither[int, core.ErrContext](*entityId.Left)
 }
 
 func GetRouteParams(c *fiber.Ctx, routeParamName string) string {
@@ -53,21 +53,21 @@ func GetRouteParams(c *fiber.Ctx, routeParamName string) string {
 	return entityId
 }
 
-func Response[T any](c *fiber.Ctx, result base.Either[T, base.ErrContext]) error {
+func Response[T any](c *fiber.Ctx, result core.Either[T, core.ErrContext]) error {
 	if result.IsRight() {
 		return OkResult(c, result.Right)
 	}
 	return ErrorResult(c, result.Left)
 }
 
-func ErrorHandleResult[T any](c *fiber.Ctx, result base.Either[T, base.ErrContext]) error {
+func ErrorHandleResult[T any](c *fiber.Ctx, result core.Either[T, core.ErrContext]) error {
 	if result.IsRight() {
 		return OkResult(c, result.Right)
 	}
 	return ErrorResult(c, result.Left)
 }
 
-func ErrorResult(c *fiber.Ctx, error *base.ErrContext) error {
+func ErrorResult(c *fiber.Ctx, error *core.ErrContext) error {
 	if error == nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorUnHandlerResponse())
 	}

@@ -6,8 +6,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"n4a3/clean-architecture/app/base"
-	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/core"
+	"n4a3/clean-architecture/app/core/global"
 )
 
 type Context interface {
@@ -16,10 +16,10 @@ type Context interface {
 	BeginSerializableTx() TransactionContext
 	DoTransaction(func(*TransactionContext) error) error
 
-	SavePoint(name string) base.Either[base.Unit, base.ErrContext]
-	RollbackTo(name string) base.Either[base.Unit, base.ErrContext]
-	Commit() base.Either[base.Unit, base.ErrContext]
-	Rollback() base.Either[base.Unit, base.ErrContext]
+	SavePoint(name string) core.Either[core.Unit, core.ErrContext]
+	RollbackTo(name string) core.Either[core.Unit, core.ErrContext]
+	Commit() core.Either[core.Unit, core.ErrContext]
+	Rollback() core.Either[core.Unit, core.ErrContext]
 }
 
 type dbContext struct {
@@ -50,24 +50,24 @@ func (c *dbContext) BeginSerializableTx() TransactionContext {
 	}
 }
 
-func (c *dbContext) SavePoint(name string) base.Either[base.Unit, base.ErrContext] {
+func (c *dbContext) SavePoint(name string) core.Either[core.Unit, core.ErrContext] {
 	result := c.db.SavePoint(name)
-	return base.NewEither(base.NewUnitPtr(), base.NewIfError(result.Error))
+	return core.NewEither(core.NewUnitPtr(), core.NewIfError(result.Error))
 }
 
-func (c *dbContext) RollbackTo(name string) base.Either[base.Unit, base.ErrContext] {
+func (c *dbContext) RollbackTo(name string) core.Either[core.Unit, core.ErrContext] {
 	result := c.db.RollbackTo(name)
-	return base.NewEither(base.NewUnitPtr(), base.NewIfError(result.Error))
+	return core.NewEither(core.NewUnitPtr(), core.NewIfError(result.Error))
 }
 
-func (c *dbContext) Commit() base.Either[base.Unit, base.ErrContext] {
+func (c *dbContext) Commit() core.Either[core.Unit, core.ErrContext] {
 	result := c.db.Commit()
-	return base.NewEither(base.NewUnitPtr(), base.NewIfError(result.Error))
+	return core.NewEither(core.NewUnitPtr(), core.NewIfError(result.Error))
 }
 
-func (c *dbContext) Rollback() base.Either[base.Unit, base.ErrContext] {
+func (c *dbContext) Rollback() core.Either[core.Unit, core.ErrContext] {
 	result := c.db.Rollback()
-	return base.NewEither(base.NewUnitPtr(), base.NewIfError(result.Error))
+	return core.NewEither(core.NewUnitPtr(), core.NewIfError(result.Error))
 }
 
 // DoTransaction Example use

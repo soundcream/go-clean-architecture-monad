@@ -4,9 +4,9 @@ import (
 	"gorm.io/gorm"
 	"math"
 	_ "math"
-	"n4a3/clean-architecture/app/base/global"
-	"n4a3/clean-architecture/app/base/util"
-	stringutil "n4a3/clean-architecture/app/base/util/string"
+	"n4a3/clean-architecture/app/core/global"
+	"n4a3/clean-architecture/app/core/util"
+	stringutil "n4a3/clean-architecture/app/core/util/string"
 	"n4a3/clean-architecture/app/domain/entity"
 )
 

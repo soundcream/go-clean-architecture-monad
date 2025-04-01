@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/core/global"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/facades"
 	"n4a3/clean-architecture/app/integrates/db"

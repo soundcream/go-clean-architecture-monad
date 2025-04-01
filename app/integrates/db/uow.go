@@ -2,8 +2,8 @@ package db
 
 import (
 	"gorm.io/gorm"
-	"n4a3/clean-architecture/app/base"
-	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/core"
+	"n4a3/clean-architecture/app/core/global"
 )
 
 type QueryUnitOfWork interface {
@@ -31,10 +31,10 @@ type CommandUnitOfWork interface {
 	BeginSerializableTx() TransactionContext
 	DoTransaction(func(*TransactionContext) error) error
 
-	SavePoint(name string) base.Either[base.Unit, base.ErrContext]
-	RollbackTo(name string) base.Either[base.Unit, base.ErrContext]
-	Commit() base.Either[base.Unit, base.ErrContext]
-	Rollback() base.Either[base.Unit, base.ErrContext]
+	SavePoint(name string) core.Either[core.Unit, core.ErrContext]
+	RollbackTo(name string) core.Either[core.Unit, core.ErrContext]
+	Commit() core.Either[core.Unit, core.ErrContext]
+	Rollback() core.Either[core.Unit, core.ErrContext]
 }
 type UnitOfWorkWrite struct {
 	Context
@@ -52,24 +52,24 @@ func (uow UnitOfWorkWrite) DoTransaction(fn func(*TransactionContext) error) err
 	return uow.Context.DoTransaction(fn)
 }
 
-func NewQueryUnitOfWork(config *global.Config) base.Either[QueryUnitOfWork, error] {
+func NewQueryUnitOfWork(config *global.Config) core.Either[QueryUnitOfWork, error] {
 	dbContext, err := NewDbContextFromConfig(config)
 	if err != nil {
-		return base.LeftEither[QueryUnitOfWork, error](err)
+		return core.LeftEither[QueryUnitOfWork, error](err)
 	}
 	uow := &UnitOfWorkReader{
 		Context: dbContext,
 	}
-	return base.RightEither[QueryUnitOfWork, error](uow)
+	return core.RightEither[QueryUnitOfWork, error](uow)
 }
 
-func NewUnitOfWork(config *global.Config) base.Either[CommandUnitOfWork, error] {
+func NewUnitOfWork(config *global.Config) core.Either[CommandUnitOfWork, error] {
 	dbContext, err := NewDbContextFromConfig(config)
 	if err != nil {
-		return base.LeftEither[CommandUnitOfWork, error](err)
+		return core.LeftEither[CommandUnitOfWork, error](err)
 	}
 	uow := UnitOfWorkWrite{
 		Context: dbContext,
 	}
-	return base.RightEither[CommandUnitOfWork, error](uow)
+	return core.RightEither[CommandUnitOfWork, error](uow)
 }

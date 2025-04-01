@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"n4a3/clean-architecture/app/base"
-	"n4a3/clean-architecture/app/base/global"
-	"n4a3/clean-architecture/app/base/util"
+	"n4a3/clean-architecture/app/core"
+	"n4a3/clean-architecture/app/core/global"
+	"n4a3/clean-architecture/app/core/util"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/facades"
 	"n4a3/clean-architecture/app/integrates/cache"
@@ -140,7 +140,7 @@ func (con *DemoController) WsCmd(c *fiber.Ctx) error {
 			Command: "Msg",
 		})
 	}
-	return Response(c, base.RightEither[base.Unit, base.ErrContext](base.Unit{}))
+	return Response(c, core.RightEither[core.Unit, core.ErrContext](core.Unit{}))
 }
 
 // GetUserById @Summary Example GetUser

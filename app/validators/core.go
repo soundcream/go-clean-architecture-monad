@@ -2,7 +2,7 @@ package validators
 
 import (
 	"github.com/go-playground/validator/v10"
-	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/core/global"
 )
 
 type (

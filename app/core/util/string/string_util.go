@@ -2,7 +2,7 @@ package stringutil
 
 import (
 	"fmt"
-	"n4a3/clean-architecture/app/base"
+	"n4a3/clean-architecture/app/core"
 	"strings"
 )
 
@@ -33,10 +33,10 @@ func ToIntWithDefault(str string, def int) int {
 	return def
 }
 
-func ToIntEither(str string) base.Either[int, base.ErrContext] {
+func ToIntEither(str string) core.Either[int, core.ErrContext] {
 	i, err := ToIntAndError(str)
 	if err != nil {
-		return base.LeftEither[int, base.ErrContext](base.NewErrorWithCode(base.Conflict, err))
+		return core.LeftEither[int, core.ErrContext](core.NewErrorWithCode(core.Conflict, err))
 	}
-	return base.NewRightEither[int, base.ErrContext](&i)
+	return core.NewRightEither[int, core.ErrContext](&i)
 }

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"n4a3/clean-architecture/app/base/util"
+	"n4a3/clean-architecture/app/core/util"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/integrates/db"
 )

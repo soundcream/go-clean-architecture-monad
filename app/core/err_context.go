@@ -1,9 +1,9 @@
-package base
+package core
 
 import (
-	"n4a3/clean-architecture/app/base/collection"
-	"n4a3/clean-architecture/app/base/global"
-	"n4a3/clean-architecture/app/base/util"
+	"n4a3/clean-architecture/app/core/collection"
+	"n4a3/clean-architecture/app/core/global"
+	"n4a3/clean-architecture/app/core/util"
 )
 
 type ErrContext struct {

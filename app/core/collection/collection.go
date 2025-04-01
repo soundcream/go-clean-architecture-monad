@@ -1,6 +1,6 @@
 package collection
 
-import "n4a3/clean-architecture/app/base/generic"
+import "n4a3/clean-architecture/app/core/generic"
 
 type Collection[T any] []T
 

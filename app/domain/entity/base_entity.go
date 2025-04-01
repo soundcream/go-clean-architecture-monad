@@ -1,7 +1,7 @@
 package entity
 
 import (
-	datetimeutil "n4a3/clean-architecture/app/base/util/datetime"
+	datetimeutil "n4a3/clean-architecture/app/core/util/datetime"
 	"time"
 )
 

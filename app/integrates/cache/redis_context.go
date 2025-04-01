@@ -4,21 +4,21 @@ import (
 	"context"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/redis/go-redis/v9"
-	"n4a3/clean-architecture/app/base"
-	"n4a3/clean-architecture/app/base/global"
+	"n4a3/clean-architecture/app/core"
+	"n4a3/clean-architecture/app/core/global"
 	"strconv"
 	"time"
 )
 
 type RedisContext interface {
 	// SetWithKey cache data with key
-	SetWithKey(key string, value interface{}) base.Either[base.Unit, base.ErrContext]
+	SetWithKey(key string, value interface{}) core.Either[core.Unit, core.ErrContext]
 	// SetWithKeyAndExp cache data with key and set expiration
-	SetWithKeyAndExp(key string, value interface{}, expiration time.Duration) base.Either[base.Unit, base.ErrContext]
+	SetWithKeyAndExp(key string, value interface{}, expiration time.Duration) core.Either[core.Unit, core.ErrContext]
 	// GetWithKey get cache data with key
-	GetWithKey(key string) base.Either[string, base.ErrContext]
+	GetWithKey(key string) core.Either[string, core.ErrContext]
 	// Publish publish redis message pub-sub with channel
-	Publish(channel string, message interface{}) base.Either[base.Unit, base.ErrContext]
+	Publish(channel string, message interface{}) core.Either[core.Unit, core.ErrContext]
 	// Subscribe subscribe redis message pub-sub with channel
 	Subscribe(channel string, fn func(*redis.Message))
 }
@@ -44,47 +44,47 @@ func NewRedisContext(config global.RedisConfig) RedisContext {
 	}
 }
 
-func (r *redisContext) SetWithKey(key string, value interface{}) base.Either[base.Unit, base.ErrContext] {
+func (r *redisContext) SetWithKey(key string, value interface{}) core.Either[core.Unit, core.ErrContext] {
 	err := r.client.Set(r.context, key, value, 0).Err()
 	if err != nil {
 		log.Error(err)
-		return base.LeftEither[base.Unit, base.ErrContext](base.NewErrorCode(base.Invalid))
+		return core.LeftEither[core.Unit, core.ErrContext](core.NewErrorCode(core.Invalid))
 	}
-	return base.NewRightEither[base.Unit, base.ErrContext](base.NewUnitPtr())
+	return core.NewRightEither[core.Unit, core.ErrContext](core.NewUnitPtr())
 }
 
-func (r *redisContext) SetWithKeyAndExp(key string, value interface{}, expiration time.Duration) base.Either[base.Unit, base.ErrContext] {
+func (r *redisContext) SetWithKeyAndExp(key string, value interface{}, expiration time.Duration) core.Either[core.Unit, core.ErrContext] {
 	err := r.client.Set(r.context, key, value, expiration).Err()
 	if err != nil {
 		log.Error(err)
-		return base.LeftEither[base.Unit, base.ErrContext](base.NewErrorCode(base.Invalid))
+		return core.LeftEither[core.Unit, core.ErrContext](core.NewErrorCode(core.Invalid))
 	}
-	return base.NewRightEither[base.Unit, base.ErrContext](base.NewUnitPtr())
+	return core.NewRightEither[core.Unit, core.ErrContext](core.NewUnitPtr())
 }
 
-func (r *redisContext) GetWithKey(key string) base.Either[string, base.ErrContext] {
+func (r *redisContext) GetWithKey(key string) core.Either[string, core.ErrContext] {
 	exists, err := r.client.Exists(r.context, key).Result()
 	if err != nil {
 		log.Error(err)
-		return base.LeftEither[string, base.ErrContext](base.NewErrorCode(base.Invalid))
+		return core.LeftEither[string, core.ErrContext](core.NewErrorCode(core.Invalid))
 	}
 	if exists > 0 {
 		value, err := r.client.Get(r.context, key).Result()
 		if err != nil {
 			log.Error(err)
-			return base.LeftEither[string, base.ErrContext](base.NewErrorCode(base.Invalid))
+			return core.LeftEither[string, core.ErrContext](core.NewErrorCode(core.Invalid))
 		}
-		return base.RightEither[string, base.ErrContext](value)
+		return core.RightEither[string, core.ErrContext](value)
 	}
-	return base.RightEither[string, base.ErrContext]("")
+	return core.RightEither[string, core.ErrContext]("")
 }
 
-func (r *redisContext) Publish(channel string, message interface{}) base.Either[base.Unit, base.ErrContext] {
+func (r *redisContext) Publish(channel string, message interface{}) core.Either[core.Unit, core.ErrContext] {
 	if err := r.client.Publish(r.context, channel, message).Err(); err != nil {
 		log.Error("Cannot Publish Redis Message", err)
-		return base.LeftEither[base.Unit, base.ErrContext](base.NewErrorCode(base.Invalid))
+		return core.LeftEither[core.Unit, core.ErrContext](core.NewErrorCode(core.Invalid))
 	}
-	return base.RightEither[base.Unit, base.ErrContext](base.NewUnit())
+	return core.RightEither[core.Unit, core.ErrContext](core.NewUnit())
 }
 
 func (r *redisContext) Subscribe(channel string, fn func(*redis.Message)) {

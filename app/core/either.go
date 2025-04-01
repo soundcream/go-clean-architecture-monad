@@ -1,4 +1,4 @@
-package base
+package core
 
 type Either[R, L any] struct {
 	Right *R
