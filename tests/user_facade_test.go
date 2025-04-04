@@ -3,6 +3,7 @@ package tests
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"n4a3/clean-architecture/app/core"
 	"n4a3/clean-architecture/app/domain/entity"
 	"n4a3/clean-architecture/app/facades"
 	"n4a3/clean-architecture/app/integrates/db"
@@ -25,9 +26,9 @@ func TestGetUserByID(t *testing.T) {
 	repo := new(MockRepository[entity.User])
 	userRepo := new(MockUserRepository)
 	userRepo.ReadOnlyRepository = repo
-	repo.On("FindById", 1).Return(&entity.User{
+	repo.On("FindById", 1).Return(core.RightEither[entity.User, core.ErrContext](entity.User{
 		BaseEntity: entity.NewBaseWithId(3),
-		Name:       "John"})
+		Name:       "John"}))
 
 	facade := facades.NewUserFacade(userRepo)
 	u, err := facade.GetUserById(1)
