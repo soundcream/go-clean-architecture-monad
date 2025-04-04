@@ -3,6 +3,9 @@
 
 # IntelliJ project files
 .idea
+!.idea/dataSources
+!.idea/httpRequests
+!.idea/inspectionProfiles
 *.iml
 out
 gen
